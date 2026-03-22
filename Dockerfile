@@ -91,7 +91,7 @@ ENV PORT=3000
 
 # Health check para que Dokploy pueda verificar el estado del contenedor
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/salud || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/salud || exit 1
 
 # Ejecutar el servidor standalone de Next.js
 CMD ["node", "server.js"]
