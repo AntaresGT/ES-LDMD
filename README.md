@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo_es_ldmd.png" alt="es-ldmd" width="400" />
+  <img src="public/imagen_seo.png" alt="es-ldmd" width="400" />
 </p>
 
 <h3 align="center">Español - Lenguaje de Modelado de Diagramas</h3>
