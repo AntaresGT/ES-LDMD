@@ -1,0 +1,171 @@
+/**
+ * @archivo globals.css
+ * @descripcion Estilos globales de la aplicación es-ldmd.
+ * Reset básico y variables CSS para temas.
+ */
+
+/* Reset global */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-family: var(--mantine-font-family);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--mantine-color-default-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--mantine-color-dimmed);
+}
+
+/* Estilos para items de la lista de errores */
+.lista-errores-item:hover {
+  background-color: var(--mantine-color-default-hover);
+}
+
+/* Selección de texto */
+::selection {
+  background-color: var(--mantine-color-azul-light);
+}
+
+/* ============================================================
+   Estilos de markdown dentro del chat de IA
+   ============================================================ */
+
+.chat-markdown {
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.5;
+  word-break: break-word;
+  color: var(--mantine-color-text);
+}
+
+.chat-markdown p {
+  margin: 0 0 0.4em;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3,
+.chat-markdown h4,
+.chat-markdown h5,
+.chat-markdown h6 {
+  margin: 0.6em 0 0.3em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.chat-markdown h1 { font-size: 1.15em; }
+.chat-markdown h2 { font-size: 1.1em; }
+.chat-markdown h3 { font-size: 1.05em; }
+.chat-markdown h4,
+.chat-markdown h5,
+.chat-markdown h6 { font-size: 1em; }
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.3em 0;
+  padding-left: 1.4em;
+}
+
+.chat-markdown li {
+  margin: 0.15em 0;
+}
+
+.chat-markdown strong {
+  font-weight: 700;
+}
+
+.chat-markdown em {
+  font-style: italic;
+}
+
+/* Código inline */
+.chat-markdown code:not(pre code) {
+  background-color: var(--mantine-color-default-hover);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.92em;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* Bloques de código con highlight.js */
+.chat-markdown pre {
+  margin: 0.5em 0;
+  border-radius: 6px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.chat-markdown pre code {
+  font-size: 0.88em;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  line-height: 1.5;
+  display: block;
+  padding: 0.7em 0.9em;
+}
+
+.chat-markdown blockquote {
+  border-left: 3px solid var(--mantine-color-azul-5);
+  margin: 0.4em 0;
+  padding: 0.2em 0.6em;
+  color: var(--mantine-color-dimmed);
+}
+
+.chat-markdown hr {
+  border: none;
+  border-top: 1px solid var(--mantine-color-default-border);
+  margin: 0.6em 0;
+}
+
+.chat-markdown table {
+  border-collapse: collapse;
+  margin: 0.4em 0;
+  width: 100%;
+  font-size: 0.92em;
+}
+
+.chat-markdown th,
+.chat-markdown td {
+  border: 1px solid var(--mantine-color-default-border);
+  padding: 0.3em 0.5em;
+  text-align: left;
+}
+
+.chat-markdown th {
+  background-color: var(--mantine-color-default-hover);
+  font-weight: 600;
+}
+
+.chat-markdown a {
+  color: var(--mantine-color-azul-5);
+  text-decoration: none;
+}
+
+.chat-markdown a:hover {
+  text-decoration: underline;
+}

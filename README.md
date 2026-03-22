@@ -1,2 +1,3 @@
-# ES-LDMD
-Español - Lenguaje de Modelado de Diagramas
+# es-ldmd
+
+es-ldmd = Español - Lenguaje de Modelado de Diagramas
