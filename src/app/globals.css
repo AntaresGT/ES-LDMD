@@ -39,6 +39,23 @@ body {
   background-color: var(--mantine-color-dimmed);
 }
 
+/* Capsule AdSense: el formato "auto" crece mucho; el contenedor fija el recorte visible */
+.anuncio-esldmd {
+  overflow: hidden;
+  line-height: 0;
+  box-sizing: border-box;
+}
+
+.anuncio-esldmd > ins.adsbygoogle {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.anuncio-esldmd > ins.adsbygoogle iframe {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
 /* Estilos para items de la lista de errores */
 .lista-errores-item:hover {
   background-color: var(--mantine-color-default-hover);

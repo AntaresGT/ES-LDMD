@@ -38,6 +38,7 @@ import { IoSunnyOutline, IoMoonOutline } from 'react-icons/io5';
 import { UsarTema } from '@/hooks/UsarTema';
 import { VERSION_APLICACION } from '@/dominio/constantes';
 import { BloqueCodigo } from '@/componentes/documentacion/BloqueCodigo';
+import { AnuncioHorizontal } from '@/componentes/anuncios/AnuncioHorizontal';
 import { useState, useEffect, type ReactNode } from 'react';
 
 /* ─── Secciones ─── */
@@ -185,6 +186,9 @@ export function PaginaDocumentacion() {
         </AppShell.Section>
         <AppShell.Section>
           <Divider my="sm" />
+          <Box px="xs" mb="sm" style={{ display: 'flex', justifyContent: 'center' }}>
+            <AnuncioHorizontal />
+          </Box>
           <Text size="xs" c="dimmed" ta="center">v{VERSION_APLICACION}</Text>
         </AppShell.Section>
       </AppShell.Navbar>
