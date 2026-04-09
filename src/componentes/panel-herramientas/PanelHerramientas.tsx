@@ -56,8 +56,7 @@ export function PanelHerramientas({ errores = [], al_click_error, al_insertar_co
           panel: {
             flex: 1,
             minHeight: 0,
-            display: 'flex',
-            flexDirection: 'column',
+            position: 'relative',
             overflow: 'hidden',
           },
         }}
@@ -84,16 +83,16 @@ export function PanelHerramientas({ errores = [], al_click_error, al_insertar_co
         <Tabs.Panel value="errores">
           <Box
             style={{
-              flex: 1,
-              minHeight: 0,
-              height: '100%',
-              display: 'grid',
-              gridTemplateRows: 'minmax(0, 8fr) minmax(104px, 2fr)',
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
               overflow: 'hidden',
             }}
           >
             <Box
               style={{
+                flex: 1,
                 minHeight: 0,
                 overflow: 'auto',
                 WebkitOverflowScrolling: 'touch',
@@ -106,8 +105,7 @@ export function PanelHerramientas({ errores = [], al_click_error, al_insertar_co
               pb="xs"
               pt="xs"
               style={{
-                minHeight: 0,
-                overflow: 'hidden',
+                flexShrink: 0,
                 borderTop: '1px solid var(--mantine-color-default-border)',
                 backgroundColor: 'var(--mantine-color-body)',
                 display: 'flex',
@@ -115,24 +113,7 @@ export function PanelHerramientas({ errores = [], al_click_error, al_insertar_co
                 alignItems: 'stretch',
               }}
             >
-              {/*
-                Franja ~20%: un solo anuncio (un slot por instancia; ver comentarios en CargarScriptAdSense).
-              */}
-              <Box
-                p={4}
-                style={{
-                  flex: 1,
-                  minHeight: 0,
-                  minWidth: 0,
-                  width: '100%',
-                  border: '1px solid var(--mantine-color-default-border)',
-                  borderRadius: 6,
-                  overflow: 'hidden',
-                  backgroundColor: 'var(--mantine-color-default-hover)',
-                }}
-              >
-                <AnuncioCuadrado />
-              </Box>
+              <AnuncioCuadrado />
             </Box>
           </Box>
         </Tabs.Panel>
