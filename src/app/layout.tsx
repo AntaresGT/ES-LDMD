@@ -57,6 +57,7 @@ export default function RootLayout({
     <html lang="es" {...mantineHtmlProps} suppressHydrationWarning>
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
+        <meta name="google-adsense-account" content="ca-pub-7793838991292720" />
       </head>
 
       <body>
