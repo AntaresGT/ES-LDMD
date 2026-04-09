@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { mantineHtmlProps, ColorSchemeScript } from '@mantine/core';
 import './globals.css';
 import { ProveedorAplicacion } from '@/componentes/proveedor-aplicacion';
+import Script from "next/script";
 
 /**
  * Metadata de la aplicación para SEO y accesibilidad.
@@ -57,6 +58,14 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
+
+      <Script
+          id="adsense-script"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7793838991292720"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       <body>
         <ProveedorAplicacion>
           {children}
