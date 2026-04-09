@@ -38,7 +38,7 @@ import { IoSunnyOutline, IoMoonOutline } from 'react-icons/io5';
 import { UsarTema } from '@/hooks/UsarTema';
 import { VERSION_APLICACION } from '@/dominio/constantes';
 import { BloqueCodigo } from '@/componentes/documentacion/BloqueCodigo';
-import { AnuncioHorizontal } from '@/componentes/anuncios/AnuncioHorizontal';
+import { AnuncioAdSense } from '@/componentes/anuncios/AnuncioAdSense';
 import { useState, useEffect, type ReactNode } from 'react';
 
 /* ─── Secciones ─── */
@@ -184,12 +184,24 @@ export function PaginaDocumentacion() {
             </Anchor>
           ))}
         </AppShell.Section>
-        <AppShell.Section>
-          <Divider my="sm" />
-          <Box px="xs" mb="sm" style={{ display: 'flex', justifyContent: 'center' }}>
-            <AnuncioHorizontal />
+        <AppShell.Section
+          style={{
+            flexShrink: 0,
+            borderTop: '1px solid var(--mantine-color-default-border)',
+          }}
+        >
+          <Box px="xs" py="sm" style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
+            <AnuncioAdSense
+              adSlot="6679812815"
+              formato="auto"
+              anchoCompletoResponsivo
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1',
+              }}
+            />
           </Box>
-          <Text size="xs" c="dimmed" ta="center">v{VERSION_APLICACION}</Text>
+          <Text size="xs" c="dimmed" ta="center" pb="xs">v{VERSION_APLICACION}</Text>
         </AppShell.Section>
       </AppShell.Navbar>
 
