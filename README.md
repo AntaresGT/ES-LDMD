@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://es-ldmd.antaresgt.com/">Probar en línea</a> &middot;
-  <a href="https://es-ldmd.antaresgt.com/documentacion">Documentación</a>
+  <a href="https://es-ldmd.com/">Probar en línea</a> &middot;
+  <a href="https://es-ldmd.com/documentacion">Documentación</a>
 </p>
 
 ---

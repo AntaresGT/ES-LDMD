@@ -8,12 +8,28 @@ import { mantineHtmlProps, ColorSchemeScript } from '@mantine/core';
 import './globals.css';
 import { ProveedorAplicacion } from '@/componentes/proveedor-aplicacion';
 import { CargarScriptAdSense } from '@/componentes/anuncios/CargarScriptAdSense';
+import { ConsentimientoPrivacidad } from '@/componentes/anuncios/ConsentimientoPrivacidad';
+
+/** Consent Mode v2 (Google): valores por defecto antes de cualquier etiqueta de Google. */
+const SCRIPT_CONSENT_MODE_DEFECTO = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {
+  'ad_storage': 'denied',
+  'ad_user_data': 'denied',
+  'ad_personalization': 'denied',
+  'analytics_storage': 'denied',
+  'wait_for_update': 500
+});
+gtag('set', 'ads_data_redaction', true);
+gtag('set', 'url_passthrough', true);
+`;
 
 /**
  * Metadata de la aplicación para SEO y accesibilidad.
  */
 export const metadata: Metadata = {
-  metadataBase: new URL('https://es-ldmd.antaresgt.com'),
+  metadataBase: new URL('https://es-ldmd.com'),
   title: 'es-ldmd - Editor de Diagramas Entidad Relación',
   description: 'Herramienta para crear diagramas de entidad relación usando un lenguaje de modelado en español.',
   keywords: ['diagrama', 'entidad-relación', 'base de datos', 'modelado', 'español', 'SQL'],
@@ -57,10 +73,12 @@ export default function RootLayout({
     <html lang="es" {...mantineHtmlProps} suppressHydrationWarning>
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_CONSENT_MODE_DEFECTO }} />
         <meta name="google-adsense-account" content="ca-pub-7793838991292720" />
       </head>
 
       <body>
+        <ConsentimientoPrivacidad />
         <CargarScriptAdSense />
         <ProveedorAplicacion>
           {children}

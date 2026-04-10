@@ -17,6 +17,7 @@ import { BarraHerramientas } from '../barra-herramientas/BarraHerramientas';
 import { EditorCodigo, RefEditorCodigo } from '../editor/EditorCodigo';
 import { VistaDiagrama } from '../diagrama/VistaDiagrama';
 import { PanelHerramientas } from '../panel-herramientas/PanelHerramientas';
+import { EnlacesLegalesPie } from '@/componentes/legal/EnlacesLegalesPie';
 import { PanelExportacion } from '../panel-exportacion/PanelExportacion';
 import { UsarTema } from '@/hooks/UsarTema';
 import { GestorArchivos } from '../archivos/GestorArchivos';
@@ -429,7 +430,7 @@ export function DisenioPrincipal() {
         al_abrir_archivo={manejar_abrir_archivo}
         nombre_archivo={nombre_archivo}
       />
-      <Box style={{ flex: 1, overflow: 'hidden' }}>
+      <Box style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <Allotment vertical={es_pantalla_pequena ?? false}>
           <Allotment.Pane minSize={es_pantalla_pequena ? 150 : 250} preferredSize={es_pantalla_pequena ? '50%' : '33%'}>
             <EditorCodigo
@@ -480,6 +481,8 @@ export function DisenioPrincipal() {
         al_abrir_archivo={manejar_archivo_seleccionado}
         contenido_actual={codigo_fuente}
       />
+
+      <EnlacesLegalesPie />
     </Box>
   );
 }

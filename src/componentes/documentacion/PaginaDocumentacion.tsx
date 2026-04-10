@@ -39,6 +39,7 @@ import { UsarTema } from '@/hooks/UsarTema';
 import { VERSION_APLICACION } from '@/dominio/constantes';
 import { BloqueCodigo } from '@/componentes/documentacion/BloqueCodigo';
 import { AnuncioAdSense } from '@/componentes/anuncios/AnuncioAdSense';
+import { EnlacesLegalesPie } from '@/componentes/legal/EnlacesLegalesPie';
 import { useState, useEffect, type ReactNode } from 'react';
 
 /* ─── Secciones ─── */
@@ -837,7 +838,7 @@ Grupo autenticacion {
           {/* ── Comentarios ── */}
           <SeccionDocumento id="comentarios" titulo="Comentarios">
             <Text mb="sm">
-              Puedes agregar comentarios de una línea usando <Code>//</Code>:
+              Puedes agregar comentarios de una línea usando <Code>{'//'}</Code>:
             </Text>
             <BloqueCodigo codigo={`// Este es un comentario
 // Los comentarios se ignoran durante el análisis
@@ -1119,6 +1120,8 @@ Grupo ventas {
               ← Volver al editor
             </Anchor>
           </Box>
+
+          <EnlacesLegalesPie />
         </Box>
       </AppShell.Main>
     </AppShell>
