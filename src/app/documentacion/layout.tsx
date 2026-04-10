@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
-const TITULO = 'Política de cookies | es-ldmd';
+const TITULO = 'Documentación | es-ldmd';
 const DESCRIPCION =
-  'Uso de cookies y tecnologías similares en es-ldmd, incluida publicidad con Google AdSense y almacenamiento local de la aplicación.';
+  'Guía del lenguaje de modelado de diagramas en español (LDMD): sintaxis, ejemplos y uso del editor de diagramas entidad-relación en es-ldmd.';
 
 export const metadata: Metadata = {
   title: TITULO,
   description: DESCRIPCION,
   alternates: {
-    canonical: 'https://es-ldmd.com/politica-cookies',
+    canonical: 'https://es-ldmd.com/documentacion',
   },
   openGraph: {
     title: TITULO,
     description: DESCRIPCION,
-    url: 'https://es-ldmd.com/politica-cookies',
+    url: 'https://es-ldmd.com/documentacion',
     type: 'website',
     locale: 'es_ES',
     siteName: 'es-ldmd',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LayoutPoliticaCookies({
+export default function LayoutDocumentacion({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return children;

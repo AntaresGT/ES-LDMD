@@ -3,12 +3,13 @@
  * @descripcion Layout raíz de la aplicación Next.js.
  * Integra MantineProvider, tema y scripts necesarios.
  */
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { mantineHtmlProps, ColorSchemeScript } from '@mantine/core';
 import './globals.css';
 import { ProveedorAplicacion } from '@/componentes/proveedor-aplicacion';
 import { CargarScriptAdSense } from '@/componentes/anuncios/CargarScriptAdSense';
 import { ConsentimientoPrivacidad } from '@/componentes/anuncios/ConsentimientoPrivacidad';
+import { JsonLd } from '@/componentes/seo/JsonLd';
 
 /** Consent Mode v2 (Google): valores por defecto antes de cualquier etiqueta de Google. */
 const SCRIPT_CONSENT_MODE_DEFECTO = `
@@ -30,9 +31,26 @@ gtag('set', 'url_passthrough', true);
  */
 export const metadata: Metadata = {
   metadataBase: new URL('https://es-ldmd.com'),
+  applicationName: 'es-ldmd',
   title: 'es-ldmd - Editor de Diagramas Entidad Relación',
   description: 'Herramienta para crear diagramas de entidad relación usando un lenguaje de modelado en español.',
   keywords: ['diagrama', 'entidad-relación', 'base de datos', 'modelado', 'español', 'SQL'],
+  authors: [{ name: 'es-ldmd', url: 'https://es-ldmd.com' }],
+  creator: 'es-ldmd',
+  publisher: 'es-ldmd',
+  category: 'technology',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: {
+    canonical: 'https://es-ldmd.com',
+  },
+  icons: {
+    icon: '/imagen_seo.png',
+    apple: '/imagen_seo.png',
+  },
   openGraph: {
     title: 'es-ldmd - Editor de Diagramas Entidad Relación',
     description: 'Herramienta para crear diagramas de entidad relación usando un lenguaje de modelado en español.',
@@ -41,7 +59,7 @@ export const metadata: Metadata = {
         url: '/imagen_seo.png',
         width: 1200,
         height: 630,
-        alt: 'es-ldmd - Español - Lenguaje de Modelado de Diagramas',
+        alt: 'Logo de es-ldmd: Español - Lenguaje de Modelado de Diagramas',
       },
     ],
     type: 'website',
@@ -54,6 +72,14 @@ export const metadata: Metadata = {
     description: 'Herramienta para crear diagramas de entidad relación usando un lenguaje de modelado en español.',
     images: ['/imagen_seo.png'],
   },
+};
+
+/** Color de barra de estado / PWA alineado con tema oscuro Mantine por defecto. */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#1a1b1e' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+  ],
 };
 
 /**
@@ -72,6 +98,7 @@ export default function RootLayout({
   return (
     <html lang="es" {...mantineHtmlProps} suppressHydrationWarning>
       <head>
+        <JsonLd />
         <ColorSchemeScript defaultColorScheme="dark" />
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_CONSENT_MODE_DEFECTO }} />
         <meta name="google-adsense-account" content="ca-pub-7793838991292720" />
