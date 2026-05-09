@@ -15,7 +15,9 @@ import {
   Divider,
   Box,
   Kbd,
+  Anchor,
 } from '@mantine/core';
+import Link from 'next/link';
 import {
   VscSave,
   VscExport,
@@ -104,8 +106,12 @@ export function BarraHerramientas({
       aria-label="Barra de herramientas principal"
       style={{
         minHeight: 48,
-        borderBottom: '1px solid var(--mantine-color-default-border)',
-        backgroundColor: 'var(--mantine-color-body)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        backgroundColor: es_oscuro
+          ? 'rgba(20, 21, 25, 0.7)'
+          : 'rgba(255, 255, 255, 0.75)',
         display: 'flex',
         alignItems: 'center',
         padding: '4px 12px',
@@ -116,14 +122,21 @@ export function BarraHerramientas({
     >
       <Group gap="sm" style={{ flex: 1 }}>
         {/* nombre */}
-        <Text
-          fw={700}
-          size="sm"
-          c="azul"
-          style={{ fontFamily: 'var(--mantine-font-family-monospace)' }}
+        <Anchor
+          component={Link}
+          href="/"
+          underline="never"
+          aria-label="Ir a la página principal de es-ldmd"
         >
-          es-ldmd
-        </Text>
+          <Text
+            fw={700}
+            size="sm"
+            c="azul"
+            style={{ fontFamily: 'var(--mantine-font-family-monospace)' }}
+          >
+            es-ldmd
+          </Text>
+        </Anchor>
 
         <Badge variant="light" color="azul" size="xs">
           v0.1.0

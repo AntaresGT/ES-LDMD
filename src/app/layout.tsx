@@ -44,9 +44,6 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
-  alternates: {
-    canonical: 'https://es-ldmd.com',
-  },
   icons: {
     icon: '/imagen_seo.png',
     apple: '/imagen_seo.png',

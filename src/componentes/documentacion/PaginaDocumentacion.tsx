@@ -117,16 +117,41 @@ export function PaginaDocumentacion() {
           alignItems: 'center',
           padding: '0 16px',
           gap: 12,
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          backgroundColor: es_oscuro
+            ? 'rgba(20, 21, 25, 0.7)'
+            : 'rgba(255, 255, 255, 0.75)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
         <Burger opened={abierto} onClick={alternarNav} hiddenFrom="sm" size="sm" aria-label="Alternar navegación" />
 
-        <Text fw={700} size="sm" c="azul" style={{ fontFamily: 'var(--mantine-font-family-monospace)' }}>
-          es-ldmd
-        </Text>
-        <Badge variant="light" color="azul" size="xs">docs</Badge>
+        <Anchor
+          component={Link}
+          href="/"
+          underline="never"
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
+          <Text fw={700} size="sm" c="azul" style={{ fontFamily: 'var(--mantine-font-family-monospace)' }}>
+            es-ldmd
+          </Text>
+          <Badge variant="light" color="azul" size="xs">docs</Badge>
+        </Anchor>
 
-        <Title order={4} size="h5" style={{ flex: 1 }} visibleFrom="sm">
+        <Title
+          order={4}
+          size="h5"
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg, var(--mantine-color-azul-4), var(--mantine-color-violet-4))',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+            fontWeight: 700,
+          }}
+          visibleFrom="sm"
+        >
           Documentación
         </Title>
 
@@ -137,13 +162,13 @@ export function PaginaDocumentacion() {
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label="Volver al editor" withArrow>
+          <Tooltip label="Abrir aplicación" withArrow>
             <ActionIcon
               variant="subtle"
               color="azul"
               component={Link}
-              href="/"
-              aria-label="Volver al editor"
+              href="/aplicacion"
+              aria-label="Abrir aplicación"
             >
               <VscHome size={18} />
             </ActionIcon>
@@ -152,7 +177,17 @@ export function PaginaDocumentacion() {
       </AppShell.Header>
 
       {/* ─── Sidebar ─── */}
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar
+        p="md"
+        style={{
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          backgroundColor: es_oscuro
+            ? 'rgba(20, 21, 25, 0.6)'
+            : 'rgba(255, 255, 255, 0.7)',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
         <AppShell.Section grow component={ScrollArea} scrollbarSize={6}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="sm">Contenido</Text>
           {SECCIONES.map((s) => (
