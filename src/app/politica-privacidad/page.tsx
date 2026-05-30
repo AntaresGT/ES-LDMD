@@ -2,19 +2,42 @@
  * @archivo page.tsx (política de privacidad)
  * @descripcion Texto informativo en español (RGPD, CCPA/CPRA, AdSense). Revise y adapte con asesoramiento legal.
  */
-'use client';
-
+import type { Metadata } from 'next';
 import {
   Anchor,
   Box,
   Container,
-  List,
   Stack,
   Text,
   Title,
 } from '@mantine/core';
 import Link from 'next/link';
 import { EnlacesLegalesPie } from '@/componentes/legal/EnlacesLegalesPie';
+
+const TITULO = 'Política de privacidad';
+const DESCRIPCION =
+  'Conoce cómo tratamos y protegemos la privacidad de tus datos al usar el editor de diagramas entidad-relación es-ldmd, incluyendo almacenamiento local e integración con AdSense.';
+
+export const metadata: Metadata = {
+  title: `${TITULO} | es-ldmd`,
+  description: DESCRIPCION,
+  alternates: { canonical: 'https://es-ldmd.com/politica-privacidad' },
+  openGraph: {
+    title: `${TITULO} | es-ldmd`,
+    description: DESCRIPCION,
+    url: 'https://es-ldmd.com/politica-privacidad',
+    type: 'article',
+    locale: 'es_ES',
+    siteName: 'es-ldmd',
+    images: [{ url: '/imagen_seo.png', width: 1200, height: 630, alt: 'es-ldmd' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${TITULO} | es-ldmd`,
+    description: DESCRIPCION,
+    images: ['/imagen_seo.png'],
+  },
+};
 
 /** Sustituye por el correo de contacto real del responsable del tratamiento. */
 const CORREO_CONTACTO_DATOS = 'contacto@es-ldmd.com';
@@ -48,24 +71,24 @@ export default function PaginaPoliticaPrivacidad() {
           </Text>
 
           <Title order={2}>Datos que podemos tratar</Title>
-          <List spacing="xs">
-            <List.Item>
+          <ul style={{ listStyleType: 'disc', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 12, margin: 0, color: 'var(--mantine-color-text)' }}>
+            <li style={{ lineHeight: 1.6 }}>
               <strong>Datos técnicos y de uso:</strong> por ejemplo dirección IP aproximada, tipo de
               navegador, idioma, páginas visitadas y eventos de interacción, que suelen procesar
               terceros (p. ej. Google) cuando se muestran anuncios o se cargan scripts asociados.
-            </List.Item>
-            <List.Item>
+            </li>
+            <li style={{ lineHeight: 1.6 }}>
               <strong>Datos almacenados en tu dispositivo:</strong> la aplicación puede usar
               almacenamiento local del navegador para guardar tus archivos y preferencias (p. ej.
               tema claro/oscuro). Estos datos no se envían automáticamente a nuestros servidores
               salvo que en el futuro se indique lo contrario de forma explícita.
-            </List.Item>
-            <List.Item>
+            </li>
+            <li style={{ lineHeight: 1.6 }}>
               <strong>Contenido que introduces:</strong> el código y modelos que escribes se
               procesan en tu navegador para generar el diagrama; no los almacenamos en servidores
               propios salvo funciones futuras que se anuncien por separado.
-            </List.Item>
-          </List>
+            </li>
+          </ul>
 
           <Title order={2}>Google AdSense y socios publicitarios</Title>
           <Text>
@@ -92,21 +115,21 @@ export default function PaginaPoliticaPrivacidad() {
           </Text>
 
           <Title order={2}>Derechos en el Espacio Económico Europeo y Reino Unido</Title>
-          <List spacing="xs">
-            <List.Item>Acceder a tus datos personales.</List.Item>
-            <List.Item>Rectificar datos inexactos.</List.Item>
-            <List.Item>Solicitar la supresión («derecho al olvido») cuando proceda.</List.Item>
-            <List.Item>Limitar u oponerte a determinados tratamientos.</List.Item>
-            <List.Item>Portabilidad de los datos que nos hayas facilitado directamente, cuando aplique.</List.Item>
-            <List.Item>
+          <ul style={{ listStyleType: 'disc', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 12, margin: 0, color: 'var(--mantine-color-text)' }}>
+            <li style={{ lineHeight: 1.6 }}>Acceder a tus datos personales.</li>
+            <li style={{ lineHeight: 1.6 }}>Rectificar datos inexactos.</li>
+            <li style={{ lineHeight: 1.6 }}>Solicitar la supresión («derecho al olvido») cuando proceda.</li>
+            <li style={{ lineHeight: 1.6 }}>Limitar u oponerte a determinados tratamientos.</li>
+            <li style={{ lineHeight: 1.6 }}>Portabilidad de los datos que nos hayas facilitado directamente, cuando aplique.</li>
+            <li style={{ lineHeight: 1.6 }}>
               Retirar el consentimiento en cualquier momento sin afectar la licitud del tratamiento
               previo.
-            </List.Item>
-            <List.Item>
+            </li>
+            <li style={{ lineHeight: 1.6 }}>
               Presentar una reclamación ante una autoridad de protección de datos (en España, la
               AEPD).
-            </List.Item>
-          </List>
+            </li>
+          </ul>
 
           <Title order={2}>Derechos en California y otros estados de EE. UU.</Title>
           <Text>
@@ -153,9 +176,11 @@ export default function PaginaPoliticaPrivacidad() {
             Privacidad y mensajes de AdSense esté publicado y activo).
           </Text>
 
-          <Anchor component={Link} href="/" size="sm" mt="md">
-            Volver al editor
-          </Anchor>
+          <Link href="/" passHref legacyBehavior>
+            <Anchor size="sm" mt="md">
+              Volver al editor
+            </Anchor>
+          </Link>
         </Stack>
       </Container>
       <EnlacesLegalesPie />

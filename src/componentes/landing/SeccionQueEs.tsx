@@ -1,4 +1,4 @@
-'use client';
+
 
 /**
  * @archivo SeccionQueEs.tsx

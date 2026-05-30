@@ -1,4 +1,4 @@
-'use client';
+
 
 /**
  * @archivo PieLanding.tsx
@@ -30,21 +30,31 @@ export function PieLanding() {
             </Stack>
 
             <Group gap="lg" wrap="wrap">
-              <Anchor component={Link} href="/aplicacion" c="dimmed" size="sm">
-                Aplicación
-              </Anchor>
-              <Anchor component={Link} href="/documentacion" c="dimmed" size="sm">
-                Documentación
-              </Anchor>
-              <Anchor component={Link} href="/acerca-de" c="dimmed" size="sm">
-                Acerca de
-              </Anchor>
-              <Anchor component={Link} href="/politica-privacidad" c="dimmed" size="sm">
-                Privacidad
-              </Anchor>
-              <Anchor component={Link} href="/politica-cookies" c="dimmed" size="sm">
-                Cookies
-              </Anchor>
+              <Link href="/aplicacion" passHref legacyBehavior>
+                <Anchor c="dimmed" size="sm">
+                  Aplicación
+                </Anchor>
+              </Link>
+              <Link href="/documentacion" passHref legacyBehavior>
+                <Anchor c="dimmed" size="sm">
+                  Documentación
+                </Anchor>
+              </Link>
+              <Link href="/acerca-de" passHref legacyBehavior>
+                <Anchor c="dimmed" size="sm">
+                  Acerca de
+                </Anchor>
+              </Link>
+              <Link href="/politica-privacidad" passHref legacyBehavior>
+                <Anchor c="dimmed" size="sm">
+                  Privacidad
+                </Anchor>
+              </Link>
+              <Link href="/politica-cookies" passHref legacyBehavior>
+                <Anchor c="dimmed" size="sm">
+                  Cookies
+                </Anchor>
+              </Link>
             </Group>
           </Group>
 

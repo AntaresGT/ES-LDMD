@@ -3,7 +3,7 @@
  * @descripcion Cuerpo (cliente) de la página /acerca-de.
  * Se separa del page.tsx para mantener la metadata en un server component.
  */
-'use client';
+
 
 import Link from 'next/link';
 import {
@@ -14,7 +14,6 @@ import {
   Stack,
   Anchor,
   Group,
-  List,
   ThemeIcon,
 } from '@mantine/core';
 import { TbCheck } from 'react-icons/tb';
@@ -107,22 +106,25 @@ export function ContenidoAcercaDe() {
             <Title order={2} mb="md" style={{ letterSpacing: '-0.02em' }}>
               Qué incluye hoy
             </Title>
-            <List
-              spacing="sm"
-              size="md"
-              icon={
-                <ThemeIcon color="azul" size={22} radius="xl">
-                  <TbCheck size={14} />
-                </ThemeIcon>
-              }
-            >
-              <List.Item>Editor con resaltado de sintaxis basado en Monaco.</List.Item>
-              <List.Item>Analizador léxico, sintáctico y semántico con mensajes en español.</List.Item>
-              <List.Item>Renderizado en tiempo real del diagrama entidad-relación.</List.Item>
-              <List.Item>Exportación a SQL (PostgreSQL/MySQL) e imagen del diagrama.</List.Item>
-              <List.Item>Asistente de IA opcional con WebLLM ejecutado en navegador.</List.Item>
-              <List.Item>Persistencia automática en almacenamiento local.</List.Item>
-            </List>
+            <Stack gap="sm">
+              {[
+                'Editor con resaltado de sintaxis basado en Monaco.',
+                'Analizador léxico, sintáctico y semántico con mensajes en español.',
+                'Renderizado en tiempo real del diagrama entidad-relación.',
+                'Exportación a SQL (PostgreSQL/MySQL) e imagen del diagrama.',
+                'Asistente de IA opcional con WebLLM ejecutado en navegador.',
+                'Persistencia automática en almacenamiento local.',
+              ].map((item, idx) => (
+                <Group key={idx} gap="sm" align="center" wrap="nowrap">
+                  <ThemeIcon color="azul" size={22} radius="xl" style={{ flexShrink: 0 }}>
+                    <TbCheck size={14} />
+                  </ThemeIcon>
+                  <Text size="md" c="dimmed" style={{ lineHeight: 1.6 }}>
+                    {item}
+                  </Text>
+                </Group>
+              ))}
+            </Stack>
           </section>
 
           <section>
@@ -149,21 +151,23 @@ export function ContenidoAcercaDe() {
               traducción, una expresión que se sentiría más natural de otra forma,
               o detectas un fallo en la generación de SQL, queremos saberlo. La
               forma más rápida es escribir desde la página de{' '}
-              <Anchor component={Link} href="/documentacion">documentación</Anchor>{' '}
+              <Link href="/documentacion" passHref legacyBehavior>
+                <Anchor>documentación</Anchor>
+              </Link>{' '}
               o seguir las indicaciones del repositorio del proyecto.
             </Text>
           </section>
 
           <section>
             <Group justify="center" mt="xl">
-              <Anchor
-                component={Link}
-                href="/aplicacion"
-                fw={600}
-                style={{ fontSize: 18 }}
-              >
-                Probar la aplicación →
-              </Anchor>
+              <Link href="/aplicacion" passHref legacyBehavior>
+                <Anchor
+                  fw={600}
+                  style={{ fontSize: 18 }}
+                >
+                  Probar la aplicación →
+                </Anchor>
+              </Link>
             </Group>
           </section>
         </Stack>

@@ -1,4 +1,4 @@
-'use client';
+
 
 /**
  * @archivo CtaFinal.tsx
@@ -38,27 +38,27 @@ export function CtaFinal() {
               tener tu primer diagrama.
             </Text>
             <Group gap="md" mt="sm">
-              <Button
-                component={Link}
-                href="/aplicacion"
-                size="lg"
-                radius="md"
-                variant="gradient"
-                gradient={{ from: 'azul.6', to: 'violet.6', deg: 135 }}
-                styles={{ root: { paddingInline: 28, fontWeight: 600 } }}
-              >
-                Abrir aplicación
-              </Button>
-              <Button
-                component={Link}
-                href="/documentacion"
-                size="lg"
-                radius="md"
-                variant="default"
-                styles={{ root: { paddingInline: 28, fontWeight: 600 } }}
-              >
-                Ir a documentación
-              </Button>
+              <Link href="/aplicacion" passHref legacyBehavior>
+                <Button
+                  size="lg"
+                  radius="md"
+                  variant="gradient"
+                  gradient={{ from: 'azul.6', to: 'violet.6', deg: 135 }}
+                  styles={{ root: { paddingInline: 28, fontWeight: 600 } }}
+                >
+                  Abrir aplicación
+                </Button>
+              </Link>
+              <Link href="/documentacion" passHref legacyBehavior>
+                <Button
+                  size="lg"
+                  radius="md"
+                  variant="default"
+                  styles={{ root: { paddingInline: 28, fontWeight: 600 } }}
+                >
+                  Ir a documentación
+                </Button>
+              </Link>
             </Group>
           </Stack>
         </Box>
