@@ -39,6 +39,7 @@ import { UsarTema } from '@/hooks/UsarTema';
 import { VERSION_APLICACION } from '@/dominio/constantes';
 import { BloqueCodigo } from '@/componentes/documentacion/BloqueCodigo';
 import { AnuncioAdSense } from '@/componentes/anuncios/AnuncioAdSense';
+import { AnuncioHorizontal } from '@/componentes/anuncios/AnuncioHorizontal';
 import { EnlacesLegalesPie } from '@/componentes/legal/EnlacesLegalesPie';
 import { useState, useEffect, type ReactNode } from 'react';
 
@@ -1154,6 +1155,11 @@ Grupo ventas {
             <Anchor component={Link} href="/" size="sm" mt="xs" style={{ display: 'inline-block' }}>
               ← Volver al editor
             </Anchor>
+          </Box>
+
+          {/* Anuncio horizontal en el pie de página de la documentación (no intrusivo) */}
+          <Box my="md" style={{ display: 'flex', justifyContent: 'center' }}>
+            <AnuncioHorizontal />
           </Box>
 
           <EnlacesLegalesPie />

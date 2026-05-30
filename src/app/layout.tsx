@@ -7,7 +7,6 @@ import type { Metadata, Viewport } from 'next';
 import { mantineHtmlProps, ColorSchemeScript } from '@mantine/core';
 import './globals.css';
 import { ProveedorAplicacion } from '@/componentes/proveedor-aplicacion';
-import { CargarScriptAdSense } from '@/componentes/anuncios/CargarScriptAdSense';
 import { ConsentimientoPrivacidad } from '@/componentes/anuncios/ConsentimientoPrivacidad';
 import { JsonLd } from '@/componentes/seo/JsonLd';
 
@@ -99,11 +98,16 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="dark" />
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_CONSENT_MODE_DEFECTO }} />
         <meta name="google-adsense-account" content="ca-pub-7793838991292720" />
+        <script
+          async
+          id="esldmd-adsbygoogle-js"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7793838991292720"
+          crossOrigin="anonymous"
+        />
       </head>
 
       <body>
         <ConsentimientoPrivacidad />
-        <CargarScriptAdSense />
         <ProveedorAplicacion>
           {children}
         </ProveedorAplicacion>

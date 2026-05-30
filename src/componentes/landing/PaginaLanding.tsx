@@ -15,6 +15,7 @@ import { SeccionCasosUso } from './SeccionCasosUso';
 import { SeccionFAQ } from './SeccionFAQ';
 import { CtaFinal } from './CtaFinal';
 import { PieLanding } from './PieLanding';
+import { AnuncioHorizontal } from '@/componentes/anuncios/AnuncioHorizontal';
 
 export function PaginaLanding() {
   return (
@@ -28,6 +29,12 @@ export function PaginaLanding() {
         <SeccionEjemplo />
         <SeccionCasosUso />
         <SeccionFAQ />
+
+        {/* Banner de anuncio horizontal (no intrusivo) */}
+        <Box style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#0e0f12' }} py="lg">
+          <AnuncioHorizontal />
+        </Box>
+
         <CtaFinal />
       </main>
       <PieLanding />

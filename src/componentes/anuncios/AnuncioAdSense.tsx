@@ -9,8 +9,6 @@ import { Box, type BoxProps } from '@mantine/core';
 import { useEffect, useRef } from 'react';
 import {
   ADSENSE_CLIENT_ID,
-  ADSENSE_READY_EVENT,
-  ADSENSE_SCRIPT_ELEMENT_ID,
 } from './adsense-constantes';
 
 /** Reexport para código que ya importaba el cliente desde aquí. */
@@ -45,7 +43,7 @@ export function AnuncioAdSense({
   const ya_hecho_push = useRef(false);
 
   useEffect(() => {
-    const ejecutar_push = () => {
+    const animId = requestAnimationFrame(() => {
       if (ya_hecho_push.current) return;
       ya_hecho_push.current = true;
       try {
@@ -53,26 +51,8 @@ export function AnuncioAdSense({
       } catch {
         ya_hecho_push.current = false;
       }
-    };
-
-    /** Tras paint: el <ins> debe existir en el DOM antes del push. */
-    const al_listo = () => {
-      requestAnimationFrame(ejecutar_push);
-    };
-
-    const script = document.getElementById(ADSENSE_SCRIPT_ELEMENT_ID);
-    if (script instanceof HTMLScriptElement && script.dataset.loaded === 'true') {
-      al_listo();
-      return;
-    }
-
-    window.addEventListener(ADSENSE_READY_EVENT, al_listo);
-    script?.addEventListener('load', al_listo);
-
-    return () => {
-      window.removeEventListener(ADSENSE_READY_EVENT, al_listo);
-      script?.removeEventListener('load', al_listo);
-    };
+    });
+    return () => cancelAnimationFrame(animId);
   }, []);
 
   return (

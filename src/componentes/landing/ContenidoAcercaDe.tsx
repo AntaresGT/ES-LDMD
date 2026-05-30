@@ -20,6 +20,7 @@ import {
 import { TbCheck } from 'react-icons/tb';
 import { EncabezadoLanding } from './EncabezadoLanding';
 import { PieLanding } from './PieLanding';
+import { AnuncioHorizontal } from '@/componentes/anuncios/AnuncioHorizontal';
 
 export function ContenidoAcercaDe() {
   return (
@@ -166,6 +167,13 @@ export function ContenidoAcercaDe() {
             </Group>
           </section>
         </Stack>
+      </Container>
+
+      {/* Banner de anuncio horizontal en el pie de la página (no intrusivo) */}
+      <Container size="md" pb="md">
+        <Box style={{ display: 'flex', justifyContent: 'center' }}>
+          <AnuncioHorizontal />
+        </Box>
       </Container>
 
       <PieLanding />
