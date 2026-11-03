@@ -5,19 +5,32 @@
 # ============================================================
 
 # IMPORTANT: Node.js Version Maintenance
-# Esta versión es la LTS recomendada por Vercel al momento de escritura.
-# Revisa periódicamente https://nodejs.org/ y actualiza este ARG.
-ARG NODE_VERSION=24.13.0-slim
+# Node.js 26.13.0 LTS (Lithium, 2026-10-28) y pnpm 12.16.1 (tag latest).
+# Node.js 26 no incluye Corepack: la etapa base instala pnpm.
+# Revisa periódicamente https://nodejs.org/ y actualiza estos ARG.
+ARG NODE_VERSION=26.13.0-slim
+ARG PNPM_VERSION=12.16.1
+ARG COREPACK_VERSION=0.36.0
+
+# ============================================================
+# Stage 0: Base - Node LTS + pnpm estable
+# ============================================================
+FROM node:${NODE_VERSION} AS base
+
+ARG PNPM_VERSION
+RUN npm install -g --allow-scripts=pnpm "pnpm@${PNPM_VERSION}"
 
 # ============================================================
 # Stage 1: Dependencies - instalar solo dependencias
 # ============================================================
-FROM node:${NODE_VERSION} AS dependencies
+FROM base AS dependencies
 
+ARG COREPACK_VERSION
 WORKDIR /app
 
-# Copiar solo manifiestos para aprovechar la cache de capas
-COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* .npmrc* ./
+# Copiar solo manifiestos para aprovechar la cache de capas.
+# pnpm-workspace.yaml lleva allowBuilds; sin él, pnpm 12 falla el install.
+COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc* ./
 
 # Instalar dependencias con BuildKit cache mounts para acelerar builds
 RUN --mount=type=cache,target=/root/.npm \
@@ -26,9 +39,9 @@ RUN --mount=type=cache,target=/root/.npm \
     if [ -f package-lock.json ]; then \
       npm ci --no-audit --no-fund; \
     elif [ -f yarn.lock ]; then \
-      corepack enable yarn && yarn install --frozen-lockfile --production=false; \
+      npm install -g "corepack@${COREPACK_VERSION}" && corepack enable yarn && yarn install --frozen-lockfile --production=false; \
     elif [ -f pnpm-lock.yaml ]; then \
-      corepack enable pnpm && pnpm install --frozen-lockfile --config.strict-dep-builds=false; \
+      pnpm install --frozen-lockfile; \
     else \
       echo "No lockfile found." && exit 1; \
     fi
@@ -36,8 +49,9 @@ RUN --mount=type=cache,target=/root/.npm \
 # ============================================================
 # Stage 2: Builder - compilar la aplicación
 # ============================================================
-FROM node:${NODE_VERSION} AS builder
+FROM base AS builder
 
+ARG COREPACK_VERSION
 WORKDIR /app
 
 # Copiar dependencias instaladas
@@ -54,9 +68,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN if [ -f package-lock.json ]; then \
       npm run build; \
     elif [ -f yarn.lock ]; then \
-      corepack enable yarn && yarn build; \
+      npm install -g "corepack@${COREPACK_VERSION}" && corepack enable yarn && yarn build; \
     elif [ -f pnpm-lock.yaml ]; then \
-      corepack enable pnpm && pnpm build; \
+      pnpm build; \
     else \
       echo "No lockfile found." && exit 1; \
     fi
