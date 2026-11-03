@@ -405,13 +405,19 @@ function calcular_grados(
 
 /**
  * Layout tipo copo de nieve: el nodo más conectado al centro,
- * nodos directamente conectados en un primer anillo,
- * y el resto en un segundo anillo exterior.
+ * vecinos por anillos BFS. El radio de cada anillo usa el tamaño real
+ * de sus nodos para que bloques de grupo no exploten el canvas.
  */
 function layout_copo_de_nieve(
   nodos: NodoDiagrama[],
   aristas: AristaDiagrama[],
 ): void {
+  if (nodos.length === 1) {
+    nodos[0].x = PADDING_INICIAL;
+    nodos[0].y = PADDING_INICIAL;
+    return;
+  }
+
   const grados = calcular_grados(nodos, aristas);
 
   // Ordenar por grado descendente; el más conectado será el centro
@@ -419,55 +425,100 @@ function layout_copo_de_nieve(
     (a, b) => (grados.get(b.id) || 0) - (grados.get(a.id) || 0),
   );
 
-  const centro_id = ordenados[0].id;
+  const nodo_centro = ordenados[0];
+  const anillos = construir_anillos_bfs(nodos, aristas, nodo_centro.id);
 
-  // Identificar vecinos directos del centro
-  const vecinos_centro = new Set<string>();
-  for (const arista of aristas) {
-    if (arista.nodo_origen === centro_id) vecinos_centro.add(arista.nodo_destino);
-    if (arista.nodo_destino === centro_id) vecinos_centro.add(arista.nodo_origen);
+  nodo_centro.x = -nodo_centro.ancho / 2;
+  nodo_centro.y = -nodo_centro.alto / 2;
+  let radio_exterior = Math.hypot(nodo_centro.ancho / 2, nodo_centro.alto / 2);
+
+  const capas = Array.from(anillos.keys())
+    .filter((capa) => capa > 0)
+    .sort((a, b) => a - b);
+
+  for (const capa of capas) {
+    const anillo = anillos.get(capa)!;
+    if (anillo.length === 0) continue;
+
+    const radios_nodo = anillo.map((nodo) => Math.hypot(nodo.ancho / 2, nodo.alto / 2));
+    const radio_nodo_max = Math.max(...radios_nodo);
+    const arco = anillo.reduce(
+      (suma, _nodo, i) => suma + 2 * radios_nodo[i] + MARGEN_HORIZONTAL,
+      0,
+    );
+    const radio = Math.max(
+      radio_exterior + radio_nodo_max + MARGEN_VERTICAL,
+      arco / (2 * Math.PI),
+    );
+
+    posicionar_en_anillo(anillo, 0, 0, radio);
+    radio_exterior = radio + radio_nodo_max;
   }
 
-  const nodos_anillo_1: NodoDiagrama[] = [];
-  const nodos_anillo_2: NodoDiagrama[] = [];
-  let nodo_centro: NodoDiagrama | null = null;
+  normalizar_origen(nodos);
+}
 
+/**
+ * Anillos de distancia BFS desde el centro. Nodos inalcanzables van al anillo exterior.
+ */
+function construir_anillos_bfs(
+  nodos: NodoDiagrama[],
+  aristas: AristaDiagrama[],
+  centro_id: string,
+): Map<number, NodoDiagrama[]> {
+  const adyacentes = new Map<string, Set<string>>();
   for (const nodo of nodos) {
-    if (nodo.id === centro_id) {
-      nodo_centro = nodo;
-    } else if (vecinos_centro.has(nodo.id)) {
-      nodos_anillo_1.push(nodo);
-    } else {
-      nodos_anillo_2.push(nodo);
+    adyacentes.set(nodo.id, new Set());
+  }
+  for (const arista of aristas) {
+    adyacentes.get(arista.nodo_origen)?.add(arista.nodo_destino);
+    adyacentes.get(arista.nodo_destino)?.add(arista.nodo_origen);
+  }
+
+  const distancia = new Map<string, number>();
+  distancia.set(centro_id, 0);
+  const cola = [centro_id];
+  while (cola.length > 0) {
+    const id = cola.shift()!;
+    const dist = distancia.get(id)!;
+    for (const vecino of adyacentes.get(id) || []) {
+      if (distancia.has(vecino)) continue;
+      distancia.set(vecino, dist + 1);
+      cola.push(vecino);
     }
   }
 
-  // Calcular radio de los anillos basándose en el tamaño de los nodos
-  const ancho_max = Math.max(...nodos.map((n) => n.ancho));
-  const alto_max = Math.max(...nodos.map((n) => n.alto));
-  const diagonal = Math.sqrt(ancho_max * ancho_max + alto_max * alto_max);
-
-  const radio_1 = Math.max(
-    diagonal + MARGEN_HORIZONTAL,
-    (nodos_anillo_1.length * (ancho_max + MARGEN_HORIZONTAL)) / (2 * Math.PI),
-  );
-  const radio_2 = radio_1 + diagonal + MARGEN_VERTICAL;
-
-  // Calcular centro del canvas
-  const cx = PADDING_INICIAL + radio_2 + ancho_max / 2;
-  const cy = PADDING_INICIAL + radio_2 + alto_max / 2;
-
-  // Posicionar nodo central
-  if (nodo_centro) {
-    nodo_centro.x = cx - nodo_centro.ancho / 2;
-    nodo_centro.y = cy - nodo_centro.alto / 2;
+  let max_dist = 0;
+  for (const dist of distancia.values()) {
+    max_dist = Math.max(max_dist, dist);
   }
+  const anillo_exterior = max_dist + 1;
 
-  // Posicionar primer anillo
-  posicionar_en_anillo(nodos_anillo_1, cx, cy, radio_1);
+  const anillos = new Map<number, NodoDiagrama[]>();
+  for (const nodo of nodos) {
+    const capa = distancia.has(nodo.id) ? distancia.get(nodo.id)! : anillo_exterior;
+    const lista = anillos.get(capa);
+    if (lista) {
+      lista.push(nodo);
+    } else {
+      anillos.set(capa, [nodo]);
+    }
+  }
+  return anillos;
+}
 
-  // Posicionar segundo anillo
-  posicionar_en_anillo(nodos_anillo_2, cx, cy, radio_2);
+function normalizar_origen(nodos: NodoDiagrama[]): void {
+  let min_x = Infinity;
+  let min_y = Infinity;
+  for (const nodo of nodos) {
+    min_x = Math.min(min_x, nodo.x);
+    min_y = Math.min(min_y, nodo.y);
+  }
+  if (!Number.isFinite(min_x) || !Number.isFinite(min_y)) return;
+  for (const nodo of nodos) {
+    nodo.x += PADDING_INICIAL - min_x;
+    nodo.y += PADDING_INICIAL - min_y;
+  }
 }
 
 /**

@@ -269,6 +269,40 @@ describe('aplicar_auto_layout con tipo copo-de-nieve', () => {
     expect(nodo.y).toBe(y);
   });
 
+  it('debería producir posiciones finitas con muchos grupos grandes', () => {
+    const nodos: NodoDiagrama[] = [];
+    const grupos: GrupoDiagrama[] = [];
+    for (let g = 0; g < 8; g++) {
+      const ids: string[] = [];
+      for (let t = 0; t < 6; t++) {
+        const id = `g${g}t${t}`;
+        nodos.push(crear_nodo(id, 240, 180 + t * 30));
+        ids.push(id);
+      }
+      grupos.push({ nombre: `G${g}`, nodos: ids, color: '#ffffff40' });
+    }
+    const aristas = [
+      crear_arista('g1t0', 'fk', 'g0t0'),
+      crear_arista('g2t0', 'fk', 'g0t0'),
+      crear_arista('g3t0', 'fk', 'g1t0'),
+    ];
+
+    const resultado = aplicar_auto_layout(nodos, aristas, grupos, 'copo-de-nieve');
+
+    expect(resultado).toHaveLength(nodos.length);
+    for (const nodo of resultado) {
+      expect(Number.isFinite(nodo.x)).toBe(true);
+      expect(Number.isFinite(nodo.y)).toBe(true);
+      expect(nodo.x).toBeGreaterThanOrEqual(0);
+      expect(nodo.y).toBeGreaterThanOrEqual(0);
+    }
+
+    const max_coord = Math.max(
+      ...resultado.map((n) => Math.max(n.x + n.ancho, n.y + n.alto)),
+    );
+    expect(max_coord).toBeLessThan(20_000);
+  });
+
   it('debería evitar superposición de nodos', () => {
     const nodos = [crear_nodo('A'), crear_nodo('B'), crear_nodo('C'), crear_nodo('D'), crear_nodo('E')];
     const aristas = [

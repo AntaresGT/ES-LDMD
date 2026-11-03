@@ -58,8 +58,10 @@ export interface ColoresTema {
 // Constantes
 // ============================================================
 
-/** Zoom mínimo permitido */
-export const ZOOM_MINIMO = 0.2;
+/** Zoom mínimo permitido con la rueda */
+export const ZOOM_MINIMO = 0.05;
+/** Zoom mínimo al ajustar todo el contenido (diagramas grandes) */
+export const ZOOM_MINIMO_AJUSTE = 0.02;
 /** Zoom máximo permitido */
 export const ZOOM_MAXIMO = 3.0;
 /** Paso de zoom por scroll */
@@ -198,15 +200,24 @@ export function ajustar_al_contenido(
   const ancho_contenido = max_x - min_x + padding * 2;
   const alto_contenido = max_y - min_y + padding * 2;
 
+  if (
+    !Number.isFinite(ancho_contenido) ||
+    !Number.isFinite(alto_contenido) ||
+    ancho_contenido <= 0 ||
+    alto_contenido <= 0
+  ) {
+    return crear_estado_vista_inicial();
+  }
+
   const zoom_x = ancho_canvas / ancho_contenido;
   const zoom_y = alto_canvas / alto_contenido;
-  const zoom = Math.min(zoom_x, zoom_y, 1.5);
+  const zoom = Math.min(Math.max(Math.min(zoom_x, zoom_y), ZOOM_MINIMO_AJUSTE), 1.5);
 
   const desplazamiento_x = (ancho_canvas - ancho_contenido * zoom) / 2 - min_x * zoom + padding * zoom;
   const desplazamiento_y = (alto_canvas - alto_contenido * zoom) / 2 - min_y * zoom + padding * zoom;
 
   return {
-    zoom: Math.max(ZOOM_MINIMO, zoom),
+    zoom,
     desplazamiento_x,
     desplazamiento_y,
   };
