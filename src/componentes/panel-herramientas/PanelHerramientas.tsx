@@ -7,7 +7,6 @@
 
 import { Box, Tabs, Text } from '@mantine/core';
 import { VscWarning, VscRobot } from 'react-icons/vsc';
-import { AnuncioCuadrado } from '@/componentes/anuncios/AnuncioCuadrado';
 import { ListaErrores } from './ListaErrores';
 import { ChatIA } from './ChatIA';
 
@@ -85,36 +84,11 @@ export function PanelHerramientas({ errores = [], al_click_error, al_insertar_co
             style={{
               position: 'absolute',
               inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
+              overflow: 'auto',
+              WebkitOverflowScrolling: 'touch',
             }}
           >
-            <Box
-              style={{
-                flex: 1,
-                minHeight: 0,
-                overflow: 'auto',
-                WebkitOverflowScrolling: 'touch',
-              }}
-            >
-              <ListaErrores errores={errores} al_click_error={al_click_error} />
-            </Box>
-            <Box
-              px="xs"
-              pb="xs"
-              pt="xs"
-              style={{
-                flexShrink: 0,
-                borderTop: '1px solid var(--mantine-color-default-border)',
-                backgroundColor: 'var(--mantine-color-body)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'stretch',
-              }}
-            >
-              <AnuncioCuadrado />
-            </Box>
+            <ListaErrores errores={errores} al_click_error={al_click_error} />
           </Box>
         </Tabs.Panel>
 
