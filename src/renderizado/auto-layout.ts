@@ -3,9 +3,12 @@
  * @descripcion Algoritmos de distribución automática de nodos en el diagrama.
  * Soporta tres estrategias: izquierda-derecha (Sugiyama), copo de nieve
  * (nodo más conectado al centro) y compacto (grilla rectangular).
+ * Si hay grupos, cada uno se empaqueta como bloque y el algoritmo opera sobre bloques.
  */
 
 import { NodoDiagrama, AristaDiagrama, GrupoDiagrama } from '@/transformadores/ast-a-diagrama';
+import { ALTO_BARRA_GRUPO, PADDING_GRUPO } from './constantes-diagrama';
+import { asignacion_exclusiva_grupos } from './geometria-arista';
 
 /**
  * Tipo de algoritmo de distribución automática.
@@ -21,6 +24,14 @@ const MARGEN_HORIZONTAL = 60;
 const MARGEN_VERTICAL = 50;
 /** Padding inicial */
 const PADDING_INICIAL = 40;
+
+interface BloqueLayout {
+  id: string;
+  es_grupo: boolean;
+  nodos: NodoDiagrama[];
+  ancho: number;
+  alto: number;
+}
 
 /**
  * Aplica distribución automática a los nodos del diagrama.
@@ -41,23 +52,196 @@ export function aplicar_auto_layout(
 
   const nodos_copia = nodos.map((n) => ({ ...n }));
 
-  switch (tipo) {
-    case 'copo-de-nieve':
-      layout_copo_de_nieve(nodos_copia, aristas);
-      break;
-    case 'compacto':
-      layout_compacto(nodos_copia);
-      break;
-    case 'izquierda-derecha':
-    default: {
-      const dependencias = construir_grafo_dependencias(nodos_copia, aristas);
-      const capas = asignar_capas(nodos_copia, dependencias);
-      posicionar_por_capas(nodos_copia, capas, grupos);
-      break;
+  if (grupos.length === 0) {
+    aplicar_layout_sobre_nodos(nodos_copia, aristas, grupos, tipo);
+    return nodos_copia;
+  }
+
+  const bloques = construir_bloques(nodos_copia, grupos);
+  for (const bloque of bloques) {
+    if (bloque.es_grupo) {
+      empaquetar_grupo(bloque, aristas);
+    } else {
+      bloque.ancho = bloque.nodos[0].ancho;
+      bloque.alto = bloque.nodos[0].alto;
     }
   }
 
+  const super_nodos = bloques.map((bloque) =>
+    nodo_ficticio(bloque.id, bloque.ancho, bloque.alto),
+  );
+  const super_aristas = aristas_entre_bloques(aristas, bloques);
+  aplicar_layout_sobre_nodos(super_nodos, super_aristas, [], tipo);
+
+  const por_id = new Map(super_nodos.map((nodo) => [nodo.id, nodo]));
+  for (const bloque of bloques) {
+    const super_nodo = por_id.get(bloque.id);
+    if (!super_nodo) continue;
+    volcar_bloque(bloque, super_nodo.x, super_nodo.y);
+  }
+
   return nodos_copia;
+}
+
+function aplicar_layout_sobre_nodos(
+  nodos: NodoDiagrama[],
+  aristas: AristaDiagrama[],
+  grupos: GrupoDiagrama[],
+  tipo: TipoLayout,
+): void {
+  switch (tipo) {
+    case 'copo-de-nieve':
+      layout_copo_de_nieve(nodos, aristas);
+      break;
+    case 'compacto':
+      layout_compacto(nodos);
+      break;
+    case 'izquierda-derecha':
+    default: {
+      const dependencias = construir_grafo_dependencias(nodos, aristas);
+      const capas = asignar_capas(nodos, dependencias);
+      posicionar_por_capas(nodos, capas, grupos);
+      break;
+    }
+  }
+}
+
+function construir_bloques(
+  nodos: NodoDiagrama[],
+  grupos: GrupoDiagrama[],
+): BloqueLayout[] {
+  const asignacion = asignacion_exclusiva_grupos(grupos);
+  const por_id = new Map(nodos.map((nodo) => [nodo.id, nodo]));
+  const usados = new Set<string>();
+  const bloques: BloqueLayout[] = [];
+
+  for (const grupo of grupos) {
+    const miembros: NodoDiagrama[] = [];
+    for (const id of grupo.nodos) {
+      if (asignacion.get(id) !== grupo.nombre) continue;
+      const nodo = por_id.get(id);
+      if (!nodo) continue;
+      miembros.push(nodo);
+      usados.add(id);
+    }
+    if (miembros.length === 0) continue;
+    bloques.push({
+      id: `grupo:${grupo.nombre}`,
+      es_grupo: true,
+      nodos: miembros,
+      ancho: 0,
+      alto: 0,
+    });
+  }
+
+  for (const nodo of nodos) {
+    if (usados.has(nodo.id)) continue;
+    bloques.push({
+      id: `nodo:${nodo.id}`,
+      es_grupo: false,
+      nodos: [nodo],
+      ancho: nodo.ancho,
+      alto: nodo.alto,
+    });
+  }
+
+  return bloques;
+}
+
+function empaquetar_grupo(bloque: BloqueLayout, aristas: AristaDiagrama[]): void {
+  const ids = new Set(bloque.nodos.map((nodo) => nodo.id));
+  const internas = aristas.filter(
+    (arista) => ids.has(arista.nodo_origen) && ids.has(arista.nodo_destino),
+  );
+
+  const dependencias = construir_grafo_dependencias(bloque.nodos, internas);
+  const capas = asignar_capas(bloque.nodos, dependencias);
+  posicionar_por_capas(bloque.nodos, capas, []);
+
+  let min_x = Infinity;
+  let min_y = Infinity;
+  let max_x = -Infinity;
+  let max_y = -Infinity;
+
+  for (const nodo of bloque.nodos) {
+    min_x = Math.min(min_x, nodo.x);
+    min_y = Math.min(min_y, nodo.y);
+    max_x = Math.max(max_x, nodo.x + nodo.ancho);
+    max_y = Math.max(max_y, nodo.y + nodo.alto);
+  }
+
+  for (const nodo of bloque.nodos) {
+    nodo.x -= min_x;
+    nodo.y -= min_y;
+  }
+
+  bloque.ancho = PADDING_GRUPO * 2 + (max_x - min_x);
+  bloque.alto = ALTO_BARRA_GRUPO + PADDING_GRUPO * 2 + (max_y - min_y);
+}
+
+function volcar_bloque(bloque: BloqueLayout, x: number, y: number): void {
+  if (!bloque.es_grupo) {
+    const nodo = bloque.nodos[0];
+    nodo.x = x;
+    nodo.y = y;
+    return;
+  }
+
+  for (const nodo of bloque.nodos) {
+    nodo.x = x + PADDING_GRUPO + nodo.x;
+    nodo.y = y + ALTO_BARRA_GRUPO + PADDING_GRUPO + nodo.y;
+  }
+}
+
+function aristas_entre_bloques(
+  aristas: AristaDiagrama[],
+  bloques: BloqueLayout[],
+): AristaDiagrama[] {
+  const id_a_bloque = new Map<string, string>();
+  for (const bloque of bloques) {
+    for (const nodo of bloque.nodos) {
+      id_a_bloque.set(nodo.id, bloque.id);
+    }
+  }
+
+  const vistas = new Set<string>();
+  const resultado: AristaDiagrama[] = [];
+
+  for (const arista of aristas) {
+    const origen = id_a_bloque.get(arista.nodo_origen);
+    const destino = id_a_bloque.get(arista.nodo_destino);
+    if (!origen || !destino || origen === destino) continue;
+    const clave = `${origen}->${destino}`;
+    if (vistas.has(clave)) continue;
+    vistas.add(clave);
+    resultado.push({
+      id: clave,
+      nodo_origen: origen,
+      columna_origen: '',
+      nodo_destino: destino,
+      columnas_destino: [],
+      eliminacion_cascada: false,
+      actualizacion_cascada: false,
+      cardinalidad: '1:N',
+    });
+  }
+
+  return resultado;
+}
+
+function nodo_ficticio(id: string, ancho: number, alto: number): NodoDiagrama {
+  return {
+    id,
+    nombre: id,
+    esquema: null,
+    columnas: [],
+    nota: null,
+    grupo: null,
+    x: 0,
+    y: 0,
+    ancho,
+    alto,
+  };
 }
 
 /**

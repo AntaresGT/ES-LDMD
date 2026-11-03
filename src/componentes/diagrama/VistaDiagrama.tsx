@@ -14,6 +14,11 @@ import { ModeloDiagrama, NodoDiagrama } from '@/transformadores/ast-a-diagrama';
 import { renderizar_diagrama } from '@/renderizado/motor-diagrama';
 import { ALTO_BARRA_GRUPO } from '@/renderizado/motor-diagrama';
 import {
+  asignacion_exclusiva_grupos,
+  calcular_caja_grupo,
+  nodos_del_grupo,
+} from '@/renderizado/geometria-arista';
+import {
   EstadoVista,
   crear_estado_vista_inicial,
   aplicar_zoom,
@@ -177,8 +182,27 @@ export function VistaDiagrama({ modelo, tipo_layout = 'izquierda-derecha', al_ca
       ? nodos_renderizado_ref.current
       : modelo.nodos;
 
+    const asignacion = asignacion_exclusiva_grupos(modelo.grupos);
+    const cajas = nodos.map((nodo) => ({
+      x: nodo.x,
+      y: nodo.y,
+      ancho: nodo.ancho,
+      alto: nodo.alto,
+    }));
+
+    for (const grupo of modelo.grupos) {
+      const caja = calcular_caja_grupo(nodos_del_grupo(grupo, nodos, asignacion));
+      if (!caja) continue;
+      cajas.push({
+        x: caja.min_x,
+        y: caja.barra_y,
+        ancho: caja.ancho,
+        alto: caja.alto_total,
+      });
+    }
+
     vista_ref.current = ajustar_al_contenido(
-      nodos,
+      cajas,
       dimensiones.ancho,
       dimensiones.alto,
     );
@@ -267,27 +291,19 @@ export function VistaDiagrama({ modelo, tipo_layout = 'izquierda-derecha', al_ca
   const detectar_grupo = useCallback((mx: number, my: number): string | null => {
     if (!modelo) return null;
     const nodos = nodos_renderizado_ref.current;
-    const PADDING = 20;
+    const asignacion = asignacion_exclusiva_grupos(modelo.grupos);
 
-    for (const grupo of modelo.grupos) {
-      const nodos_grupo = nodos.filter((n) => grupo.nodos.includes(n.id));
-      if (nodos_grupo.length === 0) continue;
+    for (let i = modelo.grupos.length - 1; i >= 0; i--) {
+      const grupo = modelo.grupos[i];
+      const caja = calcular_caja_grupo(nodos_del_grupo(grupo, nodos, asignacion));
+      if (!caja) continue;
 
-      let min_x = Infinity, min_y = Infinity, max_x = -Infinity;
-      for (const n of nodos_grupo) {
-        min_x = Math.min(min_x, n.x);
-        min_y = Math.min(min_y, n.y);
-        max_x = Math.max(max_x, n.x + n.ancho);
-      }
-      min_x -= PADDING;
-      min_y -= PADDING;
-      max_x += PADDING;
-
-      // Solo detectar la barra de arrastre (franja superior)
-      const barra_y = min_y - ALTO_BARRA_GRUPO;
-      const barra_ancho = max_x - min_x;
-
-      if (mx >= min_x && mx <= min_x + barra_ancho && my >= barra_y && my <= barra_y + ALTO_BARRA_GRUPO) {
+      if (
+        mx >= caja.min_x &&
+        mx <= caja.min_x + caja.ancho &&
+        my >= caja.barra_y &&
+        my <= caja.barra_y + ALTO_BARRA_GRUPO
+      ) {
         return grupo.nombre;
       }
     }
@@ -363,15 +379,14 @@ export function VistaDiagrama({ modelo, tipo_layout = 'izquierda-derecha', al_ca
           posiciones.set(id_nodo, { x: nodo.x + delta_mundo_x, y: nodo.y + delta_mundo_y });
         }
       } else if (nombre_grupo && modelo) {
-        // Arrastrar grupo: mover todos sus nodos
+        // Arrastrar grupo: mover todos sus nodos exclusivos
         const grupo = modelo.grupos.find((g) => g.nombre === nombre_grupo);
         if (grupo) {
           const posiciones = posiciones_usuario_ref.current;
-          for (const nodo_id of grupo.nodos) {
-            const nodo = nodos_renderizado_ref.current.find((n) => n.id === nodo_id);
-            if (nodo) {
-              posiciones.set(nodo_id, { x: nodo.x + delta_mundo_x, y: nodo.y + delta_mundo_y });
-            }
+          const asignacion = asignacion_exclusiva_grupos(modelo.grupos);
+          const nodos_grupo = nodos_del_grupo(grupo, nodos_renderizado_ref.current, asignacion);
+          for (const nodo of nodos_grupo) {
+            posiciones.set(nodo.id, { x: nodo.x + delta_mundo_x, y: nodo.y + delta_mundo_y });
           }
         }
       } else {

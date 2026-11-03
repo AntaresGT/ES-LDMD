@@ -12,11 +12,21 @@ import {
   ModeloDiagrama,
 } from '@/transformadores/ast-a-diagrama';
 import { EstadoVista, ColoresTema } from './utilidades-canvas';
+import {
+  ALTO_BARRA_GRUPO,
+  ALTO_FILA,
+  ALTO_HEADER,
+} from './constantes-diagrama';
+import {
+  asignacion_exclusiva_grupos,
+  calcular_caja_grupo,
+  calcular_geometrias_aristas,
+  GeometriaArista,
+  nodos_del_grupo,
+} from './geometria-arista';
 
-/** Altura del header de tabla */
-const ALTO_HEADER = 36;
-/** Altura de cada fila de columna */
-const ALTO_FILA = 28;
+export { ALTO_BARRA_GRUPO, PADDING_GRUPO } from './constantes-diagrama';
+
 /** Radio de esquinas redondeadas */
 const RADIO_ESQUINA = 6;
 /** Padding horizontal dentro de la tabla */
@@ -27,10 +37,6 @@ const FUENTE_HEADER = '13px "Segoe UI", system-ui, sans-serif';
 const FUENTE_COLUMNA = '12px "JetBrains Mono", "Fira Code", monospace';
 /** Tamaño de fuente de tipo de dato */
 const FUENTE_TIPO = '11px "JetBrains Mono", "Fira Code", monospace';
-/** Padding de grupo */
-const PADDING_GRUPO = 20;
-/** Altura de la barra de arrastre de grupo */
-export const ALTO_BARRA_GRUPO = 26;
 
 /**
  * Renderiza el diagrama completo en un canvas 2D.
@@ -63,14 +69,20 @@ export function renderizar_diagrama(
   ctx.translate(vista.desplazamiento_x, vista.desplazamiento_y);
   ctx.scale(vista.zoom, vista.zoom);
 
+  const asignacion = asignacion_exclusiva_grupos(modelo.grupos);
+
   // Dibujar grupos (debajo de todo)
   for (const grupo of modelo.grupos) {
-    dibujar_grupo(ctx, grupo, modelo.nodos, colores);
+    dibujar_grupo(ctx, grupo, nodos_del_grupo(grupo, modelo.nodos, asignacion), colores);
   }
+
+  const geometrias = calcular_geometrias_aristas(modelo.aristas, modelo.nodos);
 
   // Dibujar aristas (debajo de las tablas)
   for (const arista of modelo.aristas) {
-    dibujar_arista(ctx, arista, modelo.nodos, colores);
+    const geometria = geometrias.get(arista.id);
+    if (!geometria) continue;
+    dibujar_arista(ctx, arista, geometria, colores);
   }
 
   // Dibujar nodos (tablas)
@@ -236,83 +248,41 @@ function dibujar_nodo(
 function dibujar_arista(
   ctx: CanvasRenderingContext2D,
   arista: AristaDiagrama,
-  nodos: NodoDiagrama[],
+  geometria: GeometriaArista,
   colores: ColoresTema,
 ): void {
-  const nodo_origen = nodos.find((n) => n.id === arista.nodo_origen);
-  const nodo_destino = nodos.find((n) => n.id === arista.nodo_destino);
-
-  if (!nodo_origen || !nodo_destino) return;
-
-  // Encontrar la posición Y de la columna origen
-  const idx_col_origen = nodo_origen.columnas.findIndex(
-    (c) => c.nombre === arista.columna_origen,
-  );
-
-  // Calcular puntos de conexión
-  const origen_y = nodo_origen.y + ALTO_HEADER + idx_col_origen * ALTO_FILA + ALTO_FILA / 2;
-  const destino_y = nodo_destino.y + ALTO_HEADER / 2;
-
-  let origen_x: number;
-  let destino_x: number;
-
-  // Determinar de qué lado sale la línea
-  const centro_origen_x = nodo_origen.x + nodo_origen.ancho / 2;
-  const centro_destino_x = nodo_destino.x + nodo_destino.ancho / 2;
-
-  if (centro_origen_x < centro_destino_x) {
-    // Origen a la izquierda del destino
-    origen_x = nodo_origen.x + nodo_origen.ancho;
-    destino_x = nodo_destino.x;
-  } else {
-    // Origen a la derecha del destino
-    origen_x = nodo_origen.x;
-    destino_x = nodo_destino.x + nodo_destino.ancho;
-  }
-
-  // Dibujar curva Bézier
   ctx.strokeStyle = colores.color_relacion;
   ctx.lineWidth = 1.5;
   ctx.setLineDash([]);
 
-  const control_offset = Math.abs(origen_x - destino_x) * 0.4;
-
   ctx.beginPath();
-  ctx.moveTo(origen_x, origen_y);
+  ctx.moveTo(geometria.origen_x, geometria.origen_y);
   ctx.bezierCurveTo(
-    origen_x + (destino_x > origen_x ? control_offset : -control_offset),
-    origen_y,
-    destino_x + (destino_x > origen_x ? -control_offset : control_offset),
-    destino_y,
-    destino_x,
-    destino_y,
+    geometria.cp1x,
+    geometria.cp1y,
+    geometria.cp2x,
+    geometria.cp2y,
+    geometria.destino_x,
+    geometria.destino_y,
   );
   ctx.stroke();
 
-  // Dibujar punto en el destino (diamante pequeño)
   ctx.fillStyle = colores.color_relacion;
   ctx.beginPath();
-  ctx.arc(destino_x, destino_y, 4, 0, Math.PI * 2);
+  ctx.arc(geometria.destino_x, geometria.destino_y, 4, 0, Math.PI * 2);
   ctx.fill();
 
-  // Dibujar punto en el origen
   ctx.beginPath();
-  ctx.arc(origen_x, origen_y, 3, 0, Math.PI * 2);
+  ctx.arc(geometria.origen_x, geometria.origen_y, 3, 0, Math.PI * 2);
   ctx.fill();
 
-  // Calcular punto medio de la curva Bézier (t=0.5)
-  const cp1x = origen_x + (destino_x > origen_x ? control_offset : -control_offset);
-  const cp1y = origen_y;
-  const cp2x = destino_x + (destino_x > origen_x ? -control_offset : control_offset);
-  const cp2y = destino_y;
-
-  const t = 0.5;
-  const mt = 1 - t;
-  const medio_x = mt * mt * mt * origen_x + 3 * mt * mt * t * cp1x + 3 * mt * t * t * cp2x + t * t * t * destino_x;
-  const medio_y = mt * mt * mt * origen_y + 3 * mt * mt * t * cp1y + 3 * mt * t * t * cp2y + t * t * t * destino_y;
-
-  // Dibujar etiqueta de cardinalidad al centro de la línea
-  dibujar_etiqueta_cardinalidad(ctx, arista.cardinalidad, medio_x, medio_y, colores);
+  dibujar_etiqueta_cardinalidad(
+    ctx,
+    arista.cardinalidad,
+    geometria.medio_x,
+    geometria.medio_y,
+    colores,
+  );
 }
 
 /**
@@ -355,36 +325,13 @@ function dibujar_etiqueta_cardinalidad(
 function dibujar_grupo(
   ctx: CanvasRenderingContext2D,
   grupo: GrupoDiagrama,
-  nodos: NodoDiagrama[],
+  nodos_grupo: NodoDiagrama[],
   colores: ColoresTema,
 ): void {
-  // Encontrar los nodos del grupo
-  const nodos_grupo = nodos.filter((n) => grupo.nodos.includes(n.id));
-  if (nodos_grupo.length === 0) return;
+  const caja = calcular_caja_grupo(nodos_grupo);
+  if (!caja) return;
 
-  // Calcular el bounding box del grupo
-  let min_x = Infinity;
-  let min_y = Infinity;
-  let max_x = -Infinity;
-  let max_y = -Infinity;
-
-  for (const nodo of nodos_grupo) {
-    min_x = Math.min(min_x, nodo.x);
-    min_y = Math.min(min_y, nodo.y);
-    max_x = Math.max(max_x, nodo.x + nodo.ancho);
-    max_y = Math.max(max_y, nodo.y + nodo.alto);
-  }
-
-  // Agregar padding
-  min_x -= PADDING_GRUPO;
-  min_y -= PADDING_GRUPO;
-  max_x += PADDING_GRUPO;
-  max_y += PADDING_GRUPO;
-
-  const ancho = max_x - min_x;
-  const alto_cuerpo = max_y - min_y;
-  const barra_y = min_y - ALTO_BARRA_GRUPO;
-  const alto_total = alto_cuerpo + ALTO_BARRA_GRUPO;
+  const { min_x, barra_y, ancho, alto_total } = caja;
 
   // Dibujar fondo del grupo (cuerpo + barra)
   dibujar_rectangulo_redondeado(ctx, min_x, barra_y, ancho, alto_total, 8);
@@ -492,28 +439,17 @@ export function renderizar_para_exportacion(
     max_y = Math.max(max_y, nodo.y + nodo.alto);
   }
 
+  const asignacion = asignacion_exclusiva_grupos(modelo.grupos);
+
   // Incluir espacio para barras de grupo (se dibujan encima de los nodos)
   for (const grupo of modelo.grupos) {
-    const nodos_grupo = modelo.nodos.filter((n) => grupo.nodos.includes(n.id));
-    if (nodos_grupo.length === 0) continue;
+    const caja = calcular_caja_grupo(nodos_del_grupo(grupo, modelo.nodos, asignacion));
+    if (!caja) continue;
 
-    let g_min_x = Infinity;
-    let g_min_y = Infinity;
-    let g_max_x = -Infinity;
-    let g_max_y = -Infinity;
-
-    for (const n of nodos_grupo) {
-      g_min_x = Math.min(g_min_x, n.x);
-      g_min_y = Math.min(g_min_y, n.y);
-      g_max_x = Math.max(g_max_x, n.x + n.ancho);
-      g_max_y = Math.max(g_max_y, n.y + n.alto);
-    }
-
-    // La barra de grupo se dibuja PADDING_GRUPO arriba y ALTO_BARRA_GRUPO más arriba aún
-    min_x = Math.min(min_x, g_min_x - PADDING_GRUPO);
-    min_y = Math.min(min_y, g_min_y - PADDING_GRUPO - ALTO_BARRA_GRUPO);
-    max_x = Math.max(max_x, g_max_x + PADDING_GRUPO);
-    max_y = Math.max(max_y, g_max_y + PADDING_GRUPO);
+    min_x = Math.min(min_x, caja.min_x);
+    min_y = Math.min(min_y, caja.barra_y);
+    max_x = Math.max(max_x, caja.max_x);
+    max_y = Math.max(max_y, caja.max_y);
   }
 
   const padding = 40;
@@ -544,12 +480,16 @@ export function renderizar_para_exportacion(
 
   // Dibujar grupos
   for (const grupo of modelo.grupos) {
-    dibujar_grupo(ctx, grupo, modelo.nodos, colores);
+    dibujar_grupo(ctx, grupo, nodos_del_grupo(grupo, modelo.nodos, asignacion), colores);
   }
+
+  const geometrias = calcular_geometrias_aristas(modelo.aristas, modelo.nodos);
 
   // Dibujar aristas
   for (const arista of modelo.aristas) {
-    dibujar_arista(ctx, arista, modelo.nodos, colores);
+    const geometria = geometrias.get(arista.id);
+    if (!geometria) continue;
+    dibujar_arista(ctx, arista, geometria, colores);
   }
 
   // Dibujar nodos

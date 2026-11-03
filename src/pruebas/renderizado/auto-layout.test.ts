@@ -4,8 +4,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { aplicar_auto_layout, TipoLayout } from '@/renderizado/auto-layout';
+import { aplicar_auto_layout } from '@/renderizado/auto-layout';
 import { NodoDiagrama, AristaDiagrama, GrupoDiagrama } from '@/transformadores/ast-a-diagrama';
+import { calcular_caja_grupo } from '@/renderizado/geometria-arista';
 
 /** Helper para crear un nodo de diagrama */
 function crear_nodo(
@@ -381,5 +382,114 @@ describe('aplicar_auto_layout respeta el parámetro tipo', () => {
 
     expect(posiciones_diferentes(izq_der, copo)).toBe(true);
     expect(posiciones_diferentes(izq_der, compacto)).toBe(true);
+  });
+});
+
+describe('aplicar_auto_layout con grupos empaquetados', () => {
+  function cajas_solapan(
+    a: { min_x: number; max_x: number; barra_y: number; max_y: number },
+    b: { min_x: number; max_x: number; barra_y: number; max_y: number },
+  ): boolean {
+    return a.min_x < b.max_x && b.min_x < a.max_x && a.barra_y < b.max_y && b.barra_y < a.max_y;
+  }
+
+  function caja_de(nodos: NodoDiagrama[], ids: string[]) {
+    const miembros = nodos.filter((n) => ids.includes(n.id));
+    return calcular_caja_grupo(miembros)!;
+  }
+
+  it('no solapa las cajas de dos grupos unidos por una FK', () => {
+    const nodos = [
+      crear_nodo('A'),
+      crear_nodo('B'),
+      crear_nodo('C'),
+      crear_nodo('D'),
+    ];
+    const grupos: GrupoDiagrama[] = [
+      { nombre: 'G1', nodos: ['A', 'B'], color: '#ff000040' },
+      { nombre: 'G2', nodos: ['C', 'D'], color: '#00ff0040' },
+    ];
+    const aristas = [crear_arista('C', 'a_id', 'A')];
+
+    const resultado = aplicar_auto_layout(nodos, aristas, grupos);
+    const caja_g1 = caja_de(resultado, ['A', 'B']);
+    const caja_g2 = caja_de(resultado, ['C', 'D']);
+
+    expect(cajas_solapan(caja_g1, caja_g2)).toBe(false);
+  });
+
+  it('no solapa las cajas de una cadena de varios grupos', () => {
+    const nodos = [
+      crear_nodo('A'),
+      crear_nodo('B'),
+      crear_nodo('C'),
+      crear_nodo('D'),
+      crear_nodo('E'),
+      crear_nodo('F'),
+    ];
+    const grupos: GrupoDiagrama[] = [
+      { nombre: 'G1', nodos: ['A', 'B'], color: '#ff000040' },
+      { nombre: 'G2', nodos: ['C', 'D'], color: '#00ff0040' },
+      { nombre: 'G3', nodos: ['E', 'F'], color: '#0000ff40' },
+    ];
+    const aristas = [
+      crear_arista('C', 'a_id', 'A'),
+      crear_arista('E', 'c_id', 'C'),
+    ];
+
+    const resultado = aplicar_auto_layout(nodos, aristas, grupos);
+    const cajas = [
+      caja_de(resultado, ['A', 'B']),
+      caja_de(resultado, ['C', 'D']),
+      caja_de(resultado, ['E', 'F']),
+    ];
+
+    for (let i = 0; i < cajas.length; i++) {
+      for (let j = i + 1; j < cajas.length; j++) {
+        expect(cajas_solapan(cajas[i], cajas[j])).toBe(false);
+      }
+    }
+  });
+
+  it('no deja tablas de un grupo dentro de la caja de otro', () => {
+    const nodos = [
+      crear_nodo('A'),
+      crear_nodo('B'),
+      crear_nodo('C'),
+      crear_nodo('D'),
+    ];
+    const grupos: GrupoDiagrama[] = [
+      { nombre: 'G1', nodos: ['A', 'B'], color: '#ff000040' },
+      { nombre: 'G2', nodos: ['C', 'D'], color: '#00ff0040' },
+    ];
+    const aristas = [crear_arista('C', 'a_id', 'A')];
+
+    const resultado = aplicar_auto_layout(nodos, aristas, grupos);
+    const caja_g1 = caja_de(resultado, ['A', 'B']);
+
+    for (const nodo of resultado.filter((n) => n.id === 'C' || n.id === 'D')) {
+      const dentro_x = nodo.x < caja_g1.max_x && nodo.x + nodo.ancho > caja_g1.min_x;
+      const dentro_y = nodo.y < caja_g1.max_y && nodo.y + nodo.alto > caja_g1.barra_y;
+      expect(dentro_x && dentro_y).toBe(false);
+    }
+  });
+
+  it('asigna la tabla al último grupo cuando aparece en dos', () => {
+    const nodos = [crear_nodo('A'), crear_nodo('B'), crear_nodo('C')];
+    const grupos: GrupoDiagrama[] = [
+      { nombre: 'G1', nodos: ['A', 'B'], color: '#ff000040' },
+      { nombre: 'G2', nodos: ['B', 'C'], color: '#00ff0040' },
+    ];
+
+    const resultado = aplicar_auto_layout(nodos, [], grupos);
+    const caja_g1 = caja_de(resultado, ['A']);
+    const caja_g2 = caja_de(resultado, ['B', 'C']);
+
+    expect(cajas_solapan(caja_g1, caja_g2)).toBe(false);
+
+    const nodo_b = resultado.find((n) => n.id === 'B')!;
+    const dentro_g1_x = nodo_b.x < caja_g1.max_x && nodo_b.x + nodo_b.ancho > caja_g1.min_x;
+    const dentro_g1_y = nodo_b.y < caja_g1.max_y && nodo_b.y + nodo_b.alto > caja_g1.barra_y;
+    expect(dentro_g1_x && dentro_g1_y).toBe(false);
   });
 });
