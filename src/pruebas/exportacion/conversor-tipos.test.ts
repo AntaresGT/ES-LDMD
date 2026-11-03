@@ -97,4 +97,86 @@ describe('convertir_tipo', () => {
       expect(convertir_tipo('tinyint', ['1'], 'mariadb')).toBe('tinyint(1)');
     });
   });
+
+  describe('MySQL', () => {
+    it.each([
+      ['jsonb', 'JSON'],
+      ['uuid', 'CHAR(36)'],
+      ['fecha_hora', 'DATETIME'],
+      ['fecha_hora_zona', 'TIMESTAMP'],
+      ['entero', 'INTEGER'],
+    ])('debería convertir "%s" a "%s"', (tipo_es, tipo_sql) => {
+      expect(convertir_tipo(tipo_es, [], 'mysql')).toBe(tipo_sql);
+    });
+
+    it('debería convertir listado y mapa a JSON', () => {
+      expect(convertir_tipo('listado', ['entero'], 'mysql')).toBe('JSON');
+      expect(convertir_tipo('mapa', ['texto', 'entero'], 'mysql')).toBe('JSON');
+    });
+
+    it('debería convertir enum nativo', () => {
+      expect(convertir_tipo('enum', ["'a'", "'b'"], 'mysql')).toBe("ENUM('a', 'b')");
+    });
+  });
+
+  describe('SQL Server', () => {
+    it.each([
+      ['entero', 'INT'],
+      ['texto', 'NVARCHAR(MAX)'],
+      ['lógico', 'BIT'],
+      ['fecha_hora', 'DATETIME2'],
+      ['fecha_hora_zona', 'DATETIMEOFFSET'],
+      ['json', 'NVARCHAR(MAX)'],
+      ['jsonb', 'NVARCHAR(MAX)'],
+      ['uuid', 'UNIQUEIDENTIFIER'],
+    ])('debería convertir "%s" a "%s"', (tipo_es, tipo_sql) => {
+      expect(convertir_tipo(tipo_es, [], 'sqlserver')).toBe(tipo_sql);
+    });
+
+    it('debería convertir texto(n) a NVARCHAR(n)', () => {
+      expect(convertir_tipo('texto', ['100'], 'sqlserver')).toBe('NVARCHAR(100)');
+    });
+
+    it('debería convertir caracter(n) a NCHAR(n)', () => {
+      expect(convertir_tipo('caracter', ['10'], 'sqlserver')).toBe('NCHAR(10)');
+    });
+
+    it('debería convertir listado y mapa a NVARCHAR(MAX)', () => {
+      expect(convertir_tipo('listado', ['entero'], 'sqlserver')).toBe('NVARCHAR(MAX)');
+      expect(convertir_tipo('mapa', ['texto', 'entero'], 'sqlserver')).toBe('NVARCHAR(MAX)');
+    });
+
+    it('debería convertir enum a NVARCHAR(255)', () => {
+      expect(convertir_tipo('enum', ["'a'", "'b'"], 'sqlserver')).toBe('NVARCHAR(255)');
+    });
+  });
+
+  describe('SQLite', () => {
+    it.each([
+      ['entero', 'INTEGER'],
+      ['entero_grande', 'BIGINT'],
+      ['entero_pequeño', 'SMALLINT'],
+      ['lógico', 'INTEGER'],
+      ['fecha', 'TEXT'],
+      ['hora', 'TEXT'],
+      ['fecha_hora', 'TEXT'],
+      ['fecha_hora_zona', 'TEXT'],
+      ['json', 'TEXT'],
+      ['jsonb', 'TEXT'],
+      ['uuid', 'TEXT'],
+      ['flotante', 'REAL'],
+      ['texto', 'TEXT'],
+    ])('debería convertir "%s" a "%s"', (tipo_es, tipo_sql) => {
+      expect(convertir_tipo(tipo_es, [], 'sqlite')).toBe(tipo_sql);
+    });
+
+    it('debería convertir listado y mapa a TEXT', () => {
+      expect(convertir_tipo('listado', ['entero'], 'sqlite')).toBe('TEXT');
+      expect(convertir_tipo('mapa', ['texto', 'entero'], 'sqlite')).toBe('TEXT');
+    });
+
+    it('debería convertir enum a TEXT', () => {
+      expect(convertir_tipo('enum', ["'a'", "'b'"], 'sqlite')).toBe('TEXT');
+    });
+  });
 });

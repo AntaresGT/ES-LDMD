@@ -578,7 +578,9 @@ Tabla ventas.pedidos {
                     <Table.Th>Tipo es-ldmd</Table.Th>
                     <Table.Th>PostgreSQL</Table.Th>
                     <Table.Th>MariaDB</Table.Th>
-                    <Table.Th>Ejemplo</Table.Th>
+                    <Table.Th>MySQL</Table.Th>
+                    <Table.Th>SQL Server</Table.Th>
+                    <Table.Th>SQLite</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -586,19 +588,25 @@ Tabla ventas.pedidos {
                     <Table.Td><Code>{'listado(tipo)'}</Code></Table.Td>
                     <Table.Td><Code>TIPO[]</Code></Table.Td>
                     <Table.Td><Code>JSON</Code></Table.Td>
-                    <Table.Td><Code>{'etiquetas listado(texto)'}</Code></Table.Td>
+                    <Table.Td><Code>JSON</Code></Table.Td>
+                    <Table.Td><Code>NVARCHAR(MAX)</Code></Table.Td>
+                    <Table.Td><Code>TEXT</Code></Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Td><Code>{'mapa(clave, valor)'}</Code></Table.Td>
                     <Table.Td><Code>JSON</Code></Table.Td>
                     <Table.Td><Code>JSON</Code></Table.Td>
-                    <Table.Td><Code>{'propiedades mapa(texto, texto)'}</Code></Table.Td>
+                    <Table.Td><Code>JSON</Code></Table.Td>
+                    <Table.Td><Code>NVARCHAR(MAX)</Code></Table.Td>
+                    <Table.Td><Code>TEXT</Code></Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Td><Code>{"enum('v1','v2')"}</Code></Table.Td>
                     <Table.Td><Code>{"ENUM('v1','v2')"}</Code></Table.Td>
                     <Table.Td><Code>{"ENUM('v1','v2')"}</Code></Table.Td>
-                    <Table.Td><Code>{"estado enum('activo','inactivo')"}</Code></Table.Td>
+                    <Table.Td><Code>{"ENUM('v1','v2')"}</Code></Table.Td>
+                    <Table.Td><Code>NVARCHAR(255) + CHECK</Code></Table.Td>
+                    <Table.Td><Code>TEXT + CHECK</Code></Table.Td>
                   </Table.Tr>
                 </Table.Tbody>
               </Table>
@@ -641,8 +649,8 @@ Tabla ventas.pedidos {
                 </Table.Tr>
                 <Table.Tr>
                   <Table.Td><Code>incremento</Code></Table.Td>
-                  <Table.Td>Auto-incremento para columnas enteras. En PostgreSQL convierte el tipo a <Code>SERIAL</Code>/<Code>BIGSERIAL</Code>/<Code>SMALLSERIAL</Code>. En MariaDB agrega <Code>AUTO_INCREMENT</Code>.</Table.Td>
-                  <Table.Td><Code>SERIAL</Code> / <Code>AUTO_INCREMENT</Code></Table.Td>
+                  <Table.Td>Auto-incremento para columnas enteras. PostgreSQL: <Code>SERIAL</Code>/<Code>BIGSERIAL</Code>/<Code>SMALLSERIAL</Code>. MariaDB y MySQL: <Code>AUTO_INCREMENT</Code>. SQL Server: <Code>IDENTITY(1,1)</Code>. SQLite: <Code>INTEGER PRIMARY KEY AUTOINCREMENT</Code> si es la única columna de la llave primaria.</Table.Td>
+                  <Table.Td><Code>SERIAL</Code> / <Code>AUTO_INCREMENT</Code> / <Code>IDENTITY</Code></Table.Td>
                 </Table.Tr>
                 <Table.Tr>
                   <Table.Td><Code>{'por_defecto: `expr`'}</Code></Table.Td>
@@ -906,28 +914,31 @@ Tabla usuarios {
                   <Table.Th>Tipo es-ldmd</Table.Th>
                   <Table.Th>PostgreSQL</Table.Th>
                   <Table.Th>MariaDB</Table.Th>
+                  <Table.Th>MySQL</Table.Th>
+                  <Table.Th>SQL Server</Table.Th>
+                  <Table.Th>SQLite</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                <Table.Tr><Table.Td><Code>entero</Code></Table.Td><Table.Td>INTEGER</Table.Td><Table.Td>INTEGER</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>texto</Code></Table.Td><Table.Td>TEXT</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>texto(n)</Code></Table.Td><Table.Td>VARCHAR(n)</Table.Td><Table.Td>VARCHAR(n)</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>caracter(n)</Code></Table.Td><Table.Td>CHAR(n)</Table.Td><Table.Td>CHAR(n)</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>entero_grande</Code></Table.Td><Table.Td>BIGINT</Table.Td><Table.Td>BIGINT</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>entero_pequeño</Code></Table.Td><Table.Td>SMALLINT</Table.Td><Table.Td>SMALLINT</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>decimal</Code></Table.Td><Table.Td>DECIMAL</Table.Td><Table.Td>DECIMAL</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>flotante</Code></Table.Td><Table.Td>FLOAT</Table.Td><Table.Td>FLOAT</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>lógico</Code> / <Code>logico</Code> / <Code>log</Code></Table.Td><Table.Td>BOOLEAN</Table.Td><Table.Td>BOOLEAN</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>fecha</Code></Table.Td><Table.Td>DATE</Table.Td><Table.Td>DATE</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>hora</Code></Table.Td><Table.Td>TIME</Table.Td><Table.Td>TIME</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>fecha_hora</Code></Table.Td><Table.Td>TIMESTAMP</Table.Td><Table.Td>TIMESTAMP</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>fecha_hora_zona</Code></Table.Td><Table.Td>TIMESTAMPTZ</Table.Td><Table.Td>TIMESTAMPTZ</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>json</Code></Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>jsonb</Code></Table.Td><Table.Td>JSONB</Table.Td><Table.Td>JSON</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>uuid</Code></Table.Td><Table.Td>UUID</Table.Td><Table.Td>UUID</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>{'listado(tipo)'}</Code></Table.Td><Table.Td>TIPO[]</Table.Td><Table.Td>JSON</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>{'mapa(c, v)'}</Code></Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td></Table.Tr>
-                <Table.Tr><Table.Td><Code>{"enum('a','b')"}</Code></Table.Td><Table.Td>{"ENUM('a','b')"}</Table.Td><Table.Td>{"ENUM('a','b')"}</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>entero</Code></Table.Td><Table.Td>INTEGER</Table.Td><Table.Td>INTEGER</Table.Td><Table.Td>INTEGER</Table.Td><Table.Td>INT</Table.Td><Table.Td>INTEGER</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>texto</Code></Table.Td><Table.Td>TEXT</Table.Td><Table.Td>TEXT</Table.Td><Table.Td>TEXT</Table.Td><Table.Td>NVARCHAR(MAX)</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>texto(n)</Code></Table.Td><Table.Td>VARCHAR(n)</Table.Td><Table.Td>VARCHAR(n)</Table.Td><Table.Td>VARCHAR(n)</Table.Td><Table.Td>NVARCHAR(n)</Table.Td><Table.Td>VARCHAR(n)</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>caracter(n)</Code></Table.Td><Table.Td>CHAR(n)</Table.Td><Table.Td>CHAR(n)</Table.Td><Table.Td>CHAR(n)</Table.Td><Table.Td>NCHAR(n)</Table.Td><Table.Td>CHAR(n)</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>entero_grande</Code></Table.Td><Table.Td>BIGINT</Table.Td><Table.Td>BIGINT</Table.Td><Table.Td>BIGINT</Table.Td><Table.Td>BIGINT</Table.Td><Table.Td>BIGINT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>entero_pequeño</Code></Table.Td><Table.Td>SMALLINT</Table.Td><Table.Td>SMALLINT</Table.Td><Table.Td>SMALLINT</Table.Td><Table.Td>SMALLINT</Table.Td><Table.Td>SMALLINT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>decimal</Code></Table.Td><Table.Td>DECIMAL</Table.Td><Table.Td>DECIMAL</Table.Td><Table.Td>DECIMAL</Table.Td><Table.Td>DECIMAL</Table.Td><Table.Td>DECIMAL</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>flotante</Code></Table.Td><Table.Td>FLOAT</Table.Td><Table.Td>FLOAT</Table.Td><Table.Td>FLOAT</Table.Td><Table.Td>FLOAT</Table.Td><Table.Td>REAL</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>lógico</Code> / <Code>logico</Code> / <Code>log</Code></Table.Td><Table.Td>BOOLEAN</Table.Td><Table.Td>BOOLEAN</Table.Td><Table.Td>BOOLEAN</Table.Td><Table.Td>BIT</Table.Td><Table.Td>INTEGER</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>fecha</Code></Table.Td><Table.Td>DATE</Table.Td><Table.Td>DATE</Table.Td><Table.Td>DATE</Table.Td><Table.Td>DATE</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>hora</Code></Table.Td><Table.Td>TIME</Table.Td><Table.Td>TIME</Table.Td><Table.Td>TIME</Table.Td><Table.Td>TIME</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>fecha_hora</Code></Table.Td><Table.Td>TIMESTAMP</Table.Td><Table.Td>TIMESTAMP</Table.Td><Table.Td>DATETIME</Table.Td><Table.Td>DATETIME2</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>fecha_hora_zona</Code></Table.Td><Table.Td>TIMESTAMPTZ</Table.Td><Table.Td>TIMESTAMPTZ</Table.Td><Table.Td>TIMESTAMP</Table.Td><Table.Td>DATETIMEOFFSET</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>json</Code></Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td><Table.Td>NVARCHAR(MAX)</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>jsonb</Code></Table.Td><Table.Td>JSONB</Table.Td><Table.Td>JSONB</Table.Td><Table.Td>JSON</Table.Td><Table.Td>NVARCHAR(MAX)</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>uuid</Code></Table.Td><Table.Td>UUID</Table.Td><Table.Td>UUID</Table.Td><Table.Td>CHAR(36)</Table.Td><Table.Td>UNIQUEIDENTIFIER</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>{'listado(tipo)'}</Code></Table.Td><Table.Td>TIPO[]</Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td><Table.Td>NVARCHAR(MAX)</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>{'mapa(c, v)'}</Code></Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td><Table.Td>JSON</Table.Td><Table.Td>NVARCHAR(MAX)</Table.Td><Table.Td>TEXT</Table.Td></Table.Tr>
+                <Table.Tr><Table.Td><Code>{"enum('a','b')"}</Code></Table.Td><Table.Td>{"ENUM('a','b')"}</Table.Td><Table.Td>{"ENUM('a','b')"}</Table.Td><Table.Td>{"ENUM('a','b')"}</Table.Td><Table.Td>NVARCHAR(255) + CHECK</Table.Td><Table.Td>TEXT + CHECK</Table.Td></Table.Tr>
               </Table.Tbody>
             </Table>
 
@@ -948,7 +959,7 @@ Tabla usuarios {
                 motor de base de datos. Las opciones disponibles son:
               </Text>
               <List spacing="xs">
-                <List.Item><strong>Motor de base de datos</strong> — PostgreSQL o MariaDB (afecta la conversión de tipos)</List.Item>
+                <List.Item><strong>Motor de base de datos</strong> — PostgreSQL, MariaDB, SQL Server, MySQL o SQLite (afecta la conversión de tipos y la sintaxis DDL)</List.Item>
                 <List.Item><strong>IF NOT EXISTS</strong> — Agrega <Code>IF NOT EXISTS</Code> a cada <Code>CREATE TABLE</Code></List.Item>
                 <List.Item><strong>DROP TABLE</strong> — Agrega <Code>DROP TABLE IF EXISTS</Code> antes de cada tabla</List.Item>
                 <List.Item><strong>Esquema</strong> — Incluye el nombre del esquema si fue definido</List.Item>

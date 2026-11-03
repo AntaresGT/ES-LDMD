@@ -302,7 +302,7 @@ function generar_sugerencias(
     {
       label: 'incremento',
       kind: tipo_completado.Property,
-      documentation: 'Auto-incremento - convierte el tipo a SERIAL (PostgreSQL) o AUTO_INCREMENT (MariaDB)',
+      documentation: 'Auto-incremento — SERIAL (PostgreSQL), AUTO_INCREMENT (MariaDB/MySQL), IDENTITY (SQL Server) o AUTOINCREMENT (SQLite)',
       insertText: 'incremento',
       range: rango,
     },
@@ -519,7 +519,7 @@ function obtener_info_hover(palabra: string): InfoHover | null {
     },
     incremento: {
       titulo: 'Opción: incremento',
-      descripcion: 'Auto-incremento para columnas enteras.\n\nEn PostgreSQL se convierte a `SERIAL`, `BIGSERIAL` o `SMALLSERIAL`.\nEn MariaDB se agrega `AUTO_INCREMENT`.\n\nEjemplo: `id entero [incremento]`',
+      descripcion: 'Auto-incremento para columnas enteras.\n\nPostgreSQL: `SERIAL` / `BIGSERIAL` / `SMALLSERIAL`.\nMariaDB y MySQL: `AUTO_INCREMENT`.\nSQL Server: `IDENTITY(1,1)`.\nSQLite: `INTEGER PRIMARY KEY AUTOINCREMENT` si es la única columna de la llave primaria.\n\nEjemplo: `id entero [incremento]`',
     },
     por_defecto: {
       titulo: 'Opción: por_defecto',

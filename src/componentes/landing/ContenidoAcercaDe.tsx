@@ -111,7 +111,7 @@ export function ContenidoAcercaDe() {
                 'Editor con resaltado de sintaxis basado en Monaco.',
                 'Analizador léxico, sintáctico y semántico con mensajes en español.',
                 'Renderizado en tiempo real del diagrama entidad-relación.',
-                'Exportación a SQL (PostgreSQL/MySQL) e imagen del diagrama.',
+                'Exportación a SQL (PostgreSQL, MariaDB, SQL Server, MySQL y SQLite) e imagen del diagrama.',
                 'Asistente de IA opcional con WebLLM ejecutado en navegador.',
                 'Persistencia automática en almacenamiento local.',
               ].map((item, idx) => (

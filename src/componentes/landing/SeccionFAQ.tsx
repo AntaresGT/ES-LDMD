@@ -29,7 +29,7 @@ const PREGUNTAS = [
     valor: 'sql',
     pregunta: '¿Qué SQL se genera?',
     respuesta:
-      'Por defecto se genera SQL estándar compatible con PostgreSQL y MySQL. Las cláusulas de claves foráneas con eliminación o actualización en cascada se traducen a sus equivalentes nativos.',
+      'Puedes exportar el esquema a PostgreSQL, MariaDB, SQL Server, MySQL o SQLite. Las cláusulas de claves foráneas con eliminación o actualización en cascada se traducen a sus equivalentes nativos.',
   },
   {
     valor: 'aula',

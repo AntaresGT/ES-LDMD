@@ -4,11 +4,29 @@
  * Integra MantineProvider, tema y scripts necesarios.
  */
 import type { Metadata, Viewport } from 'next';
-import { mantineHtmlProps, ColorSchemeScript } from '@mantine/core';
+import Script from 'next/script';
+import { mantineHtmlProps } from '@mantine/core';
 import './globals.css';
 import { ProveedorAplicacion } from '@/componentes/proveedor-aplicacion';
 import { ConsentimientoPrivacidad } from '@/componentes/anuncios/ConsentimientoPrivacidad';
+import {
+  ADSENSE_CLIENT_ID,
+  ADSENSE_SCRIPT_ELEMENT_ID,
+} from '@/componentes/anuncios/adsense-constantes';
 import { JsonLd } from '@/componentes/seo/JsonLd';
+
+/**
+ * Equivalente a ColorSchemeScript de Mantine, como script de servidor.
+ * El componente de Mantine es client y pone data-mantine-script, que React 19
+ * hidrata como true en cliente y null en el HTML del servidor.
+ */
+const SCRIPT_ESQUEMA_COLOR = `try {
+  var _colorScheme = window.localStorage.getItem("mantine-color-scheme-value");
+  var colorScheme = _colorScheme === "light" || _colorScheme === "dark" || _colorScheme === "auto" ? _colorScheme : "dark";
+  var computedColorScheme = colorScheme !== "auto" ? colorScheme : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  document.documentElement.setAttribute("data-mantine-color-scheme", computedColorScheme);
+} catch (e) {}
+`;
 
 /** Consent Mode v2 (Google): valores por defecto antes de cualquier etiqueta de Google. */
 const SCRIPT_CONSENT_MODE_DEFECTO = `
@@ -94,20 +112,26 @@ export default function RootLayout({
   return (
     <html lang="es" {...mantineHtmlProps} suppressHydrationWarning>
       <head>
-        <JsonLd />
-        <ColorSchemeScript defaultColorScheme="dark" />
-        <script dangerouslySetInnerHTML={{ __html: SCRIPT_CONSENT_MODE_DEFECTO }} />
-        <meta name="google-adsense-account" content="ca-pub-7793838991292720" />
         <script
-          async
-          id="esldmd-adsbygoogle-js"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7793838991292720"
-          crossOrigin="anonymous"
+          id="esldmd-color-scheme"
+          dangerouslySetInnerHTML={{ __html: SCRIPT_ESQUEMA_COLOR }}
         />
+        <script
+          id="esldmd-consent-mode"
+          dangerouslySetInnerHTML={{ __html: SCRIPT_CONSENT_MODE_DEFECTO }}
+        />
+        <meta name="google-adsense-account" content={ADSENSE_CLIENT_ID} />
       </head>
 
       <body>
+        <JsonLd />
         <ConsentimientoPrivacidad />
+        <Script
+          id={ADSENSE_SCRIPT_ELEMENT_ID}
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
         <ProveedorAplicacion>
           {children}
         </ProveedorAplicacion>

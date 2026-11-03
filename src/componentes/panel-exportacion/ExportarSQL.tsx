@@ -1,7 +1,8 @@
 /**
  * @archivo ExportarSQL.tsx
  * @descripcion Panel de exportación de código SQL.
- * Permite seleccionar el motor de base de datos (PostgreSQL/MariaDB),
+ * Permite seleccionar el motor de base de datos
+ * (PostgreSQL, MariaDB, SQL Server, MySQL o SQLite),
  * ver la previsualización del SQL generado y copiar al portapapeles.
  */
 'use client';
@@ -23,7 +24,7 @@ import { CodeHighlight } from '@mantine/code-highlight';
 import { VscCopy, VscCheck, VscDesktopDownload } from 'react-icons/vsc';
 import { DocumentoAST } from '@/dominio/tipos';
 import { ast_a_sql, OpcionesSQL } from '@/exportacion/ast-a-sql';
-import { MotorBD } from '@/exportacion/conversor-tipos';
+import { es_motor_bd, MotorBD } from '@/exportacion/conversor-tipos';
 
 /**
  * Propiedades del componente ExportarSQL.
@@ -70,7 +71,7 @@ export function ExportarSQL({ ast }: PropiedadesExportarSQL) {
    * Maneja el cambio de motor de base de datos.
    */
   const manejar_cambio_motor = useCallback((valor: string | null) => {
-    if (valor === 'postgresql' || valor === 'mariadb') {
+    if (valor && es_motor_bd(valor)) {
       fijarMotor(valor);
     }
   }, []);
@@ -100,6 +101,9 @@ export function ExportarSQL({ ast }: PropiedadesExportarSQL) {
         data={[
           { value: 'postgresql', label: 'PostgreSQL' },
           { value: 'mariadb', label: 'MariaDB' },
+          { value: 'sqlserver', label: 'SQL Server' },
+          { value: 'mysql', label: 'MySQL' },
+          { value: 'sqlite', label: 'SQLite' },
         ]}
         value={motor}
         onChange={manejar_cambio_motor}

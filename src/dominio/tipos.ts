@@ -93,7 +93,7 @@ export enum TipoToken {
 export interface OpcionColumna {
   /** Indica si la columna tiene restricción NOT NULL */
   no_nulo: boolean;
-  /** Indica si la columna es auto-incremental (SERIAL en PostgreSQL, AUTO_INCREMENT en MariaDB) */
+  /** Indica si la columna es auto-incremental (SERIAL, AUTO_INCREMENT, IDENTITY o AUTOINCREMENT según el motor) */
   incremento: boolean;
   /** Expresión SQL para el valor por defecto (se copia verbatim al SQL generado) */
   valor_defecto: string | null;

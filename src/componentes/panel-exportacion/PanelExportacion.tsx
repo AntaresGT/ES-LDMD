@@ -28,7 +28,7 @@ interface PropiedadesPanelExportacion {
 
 /**
  * Panel lateral de exportación con dos pestañas:
- * - SQL: exportar código DDL para PostgreSQL o MariaDB
+ * - SQL: exportar código DDL para PostgreSQL, MariaDB, SQL Server, MySQL o SQLite
  * - Imagen: exportar diagrama como PNG, SVG o WEBP
  *
  * @param {PropiedadesPanelExportacion} props - Propiedades del componente

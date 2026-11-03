@@ -20,12 +20,12 @@ const DATOS_ESTRUCTURADOS = {
 } as const;
 
 export function JsonLd() {
+  const html = JSON.stringify(DATOS_ESTRUCTURADOS).replace(/</g, '\\u003c');
   return (
     <script
+      id="esldmd-jsonld"
       type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(DATOS_ESTRUCTURADOS),
-      }}
+      dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 }

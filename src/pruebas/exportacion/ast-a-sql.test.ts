@@ -508,4 +508,204 @@ describe('ast_a_sql', () => {
 
     expect(sql).toContain("COMMENT ON COLUMN t.col IS 'Nota con comilla''s';");
   });
+
+  it('debería generar AUTO_INCREMENT para MySQL', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero', incremento: true },
+        ]),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'mysql' });
+
+    expect(sql).toContain('id INTEGER AUTO_INCREMENT');
+    expect(sql).toContain('-- Motor: MySQL');
+  });
+
+  it('debería generar ALTER TABLE COMMENT para MySQL', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero', no_nulo: true, nota: 'Identificador único' },
+        ], { nota: 'Tabla de usuarios' }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'mysql' });
+
+    expect(sql).toContain("ALTER TABLE usuarios COMMENT = 'Tabla de usuarios'");
+    expect(sql).toContain("ALTER TABLE usuarios MODIFY COLUMN id INTEGER NOT NULL COMMENT 'Identificador único';");
+  });
+
+  it('debería generar IDENTITY para SQL Server', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero', incremento: true, no_nulo: true },
+        ], { primaria: ['id'] }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlserver' });
+
+    expect(sql).toContain('id INT IDENTITY(1,1) NOT NULL');
+    expect(sql).toContain('-- Motor: SQL Server');
+  });
+
+  it('debería generar sp_addextendedproperty para notas en SQL Server', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero', nota: 'Identificador único' },
+        ], { nota: 'Tabla de usuarios' }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlserver' });
+
+    expect(sql).toContain('EXEC sys.sp_addextendedproperty');
+    expect(sql).toContain("@name = N'MS_Description'");
+    expect(sql).toContain("@value = N'Tabla de usuarios'");
+    expect(sql).toContain("@level0name = N'dbo'");
+    expect(sql).toContain("@level1name = N'usuarios'");
+    expect(sql).toContain("@value = N'Identificador único'");
+    expect(sql).toContain("@level2name = N'id'");
+  });
+
+  it('debería envolver CREATE TABLE con OBJECT_ID en SQL Server', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('t', [
+          { nombre: 'id', tipo: 'entero' },
+        ]),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlserver', si_no_existe: true });
+
+    expect(sql).toContain("IF OBJECT_ID(N'dbo.t', N'U') IS NULL");
+    expect(sql).toContain('BEGIN');
+    expect(sql).toContain('CREATE TABLE t');
+    expect(sql).toContain('END');
+    expect(sql).not.toContain('CREATE TABLE IF NOT EXISTS');
+  });
+
+  it('debería generar CHECK de enum para SQL Server', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'estado', tipo: 'enum', parametros_tipo: ["'activo'", "'inactivo'"] },
+        ]),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlserver' });
+
+    expect(sql).toContain('estado NVARCHAR(255)');
+    expect(sql).toContain("CONSTRAINT ck_usuarios_estado CHECK (estado IN (N'activo', N'inactivo'))");
+  });
+
+  it('debería generar PRAGMA foreign_keys para SQLite', () => {
+    const ast: DocumentoAST = { tablas: [], grupos: [] };
+    const sql = ast_a_sql(ast, { motor: 'sqlite' });
+
+    expect(sql).toContain('-- Motor: SQLite');
+    expect(sql).toContain('PRAGMA foreign_keys = ON;');
+  });
+
+  it('debería generar INTEGER PRIMARY KEY AUTOINCREMENT en SQLite', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero', incremento: true },
+          { nombre: 'nombre', tipo: 'texto' },
+        ], { primaria: ['id'] }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlite' });
+
+    expect(sql).toContain('id INTEGER PRIMARY KEY AUTOINCREMENT');
+    expect(sql).not.toContain('PRIMARY KEY (id)');
+  });
+
+  it('debería avisar si AUTOINCREMENT no aplica en SQLite', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('pedido_producto', [
+          { nombre: 'pedido_id', tipo: 'entero', incremento: true },
+          { nombre: 'producto_id', tipo: 'entero' },
+        ], { primaria: ['pedido_id', 'producto_id'] }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlite' });
+
+    expect(sql).toContain('pedido_id INTEGER');
+    expect(sql).not.toContain('PRIMARY KEY AUTOINCREMENT');
+    expect(sql).toContain('PRIMARY KEY (pedido_id, producto_id)');
+    expect(sql).toContain(
+      '-- SQLite: AUTOINCREMENT solo vale en INTEGER PRIMARY KEY de una columna',
+    );
+  });
+
+  it('debería generar comentarios SQL de notas en SQLite', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero', nota: 'Identificador único' },
+        ], { nota: 'Tabla de usuarios' }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlite' });
+
+    expect(sql).toContain('-- usuarios: Tabla de usuarios');
+    expect(sql).toContain('-- usuarios.id: Identificador único');
+    expect(sql).not.toContain('COMMENT ON');
+    expect(sql).not.toContain('ALTER TABLE usuarios COMMENT');
+  });
+
+  it('debería generar CHECK de enum para SQLite', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'estado', tipo: 'enum', parametros_tipo: ["'activo'", "'inactivo'"] },
+        ]),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlite' });
+
+    expect(sql).toContain('estado TEXT');
+    expect(sql).toContain("CONSTRAINT ck_usuarios_estado CHECK (estado IN ('activo', 'inactivo'))");
+  });
+
+  it('debería usar esquema en OBJECT_ID de SQL Server', () => {
+    const ast: DocumentoAST = {
+      tablas: [
+        crear_tabla('usuarios', [
+          { nombre: 'id', tipo: 'entero' },
+        ], { esquema: 'publico' }),
+      ],
+      grupos: [],
+    };
+
+    const sql = ast_a_sql(ast, { motor: 'sqlserver', si_no_existe: true });
+
+    expect(sql).toContain("IF OBJECT_ID(N'publico.usuarios', N'U') IS NULL");
+    expect(sql).toContain('CREATE TABLE publico.usuarios');
+  });
 });

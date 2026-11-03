@@ -261,7 +261,7 @@ IMPORTANTE: No inventes tipos que no estén en esta lista. No uses: varchar, int
 
 ### Opciones de columna (entre corchetes)
 - [no nulo] — la columna no acepta valores nulos
-- [incremento] — auto-incremento. En PostgreSQL convierte entero a SERIAL, entero_grande a BIGSERIAL, entero_pequeño a SMALLSERIAL. En MariaDB agrega AUTO_INCREMENT.
+- [incremento] — auto-incremento. PostgreSQL: SERIAL/BIGSERIAL/SMALLSERIAL. MariaDB y MySQL: AUTO_INCREMENT. SQL Server: IDENTITY(1,1). SQLite: INTEGER PRIMARY KEY AUTOINCREMENT.
 - [por_defecto: \`expresión\`] — valor por defecto. La expresión SQL entre backticks se pasa literalmente. Ejemplos: [por_defecto: \`0\`], [por_defecto: \`true\`], [por_defecto: \`NOW()\`], [por_defecto: \`gen_random_uuid()\`]
 - [nota: 'texto descriptivo'] — agrega una nota a la columna
 - Se pueden combinar: [no nulo, incremento, por_defecto: \`NOW()\`, nota: 'descripción']
